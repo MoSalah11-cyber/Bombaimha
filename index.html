@@ -33,6 +33,8 @@
         
         .role-card { background: rgba(0, 255, 204, 0.05); border: 2px solid #00ffcc; border-radius: 15px; padding: 40px; margin: 20px 0; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 204, 0.2) inset; }
         .role-title { font-size: 2.5rem; color: #fff; margin-bottom: 10px; }
+        .partner-info { font-size: 1.5rem; color: #ff9900; margin-bottom: 20px; font-weight: bold; }
+        .assassin-alert { font-size: 2rem; color: #ff0033; text-shadow: 0 0 15px #ff0033, 0 0 30px #ff0033; margin-top: 25px; animation: pulse 1s infinite; font-weight: bold; letter-spacing: 2px; }
         
         #game-header { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #333; backdrop-filter: blur(5px); z-index: 10; }
         .header-info { display: flex; gap: 20px; font-size: 1.2rem; color: #aaa; align-items: center; }
@@ -50,63 +52,54 @@
         .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); align-items: center; justify-content: center; }
         .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 700px; width: 100%; position: relative; }
         
-        .wall-strip { width: 100%; background: #050505; border: 1px solid #444; border-radius: 5px; padding: 15px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 15px #000; }
+        .wall-strip { width: 100%; background: #050505; border: 1px solid #444; border-radius: 5px; padding: 15px; text-align: center; margin-bottom: 15px; box-shadow: inset 0 0 15px #000; flex-shrink: 0; }
         .wall-strip-title { font-size: 0.9rem; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
         .wall-symbols { font-size: 2.5rem; color: #a89f91; letter-spacing: 15px; font-family: serif; text-shadow: 0 0 5px rgba(168, 159, 145, 0.5); }
 
+        /* Kaydırılabilir Tuş Takımı Alanı */
+        .keypad-wrapper { width: 100%; overflow-y: auto; padding: 10px; max-height: 50vh; border: 1px solid #333; border-radius: 10px; background: rgba(0,0,0,0.3); }
+        .keypad-wrapper::-webkit-scrollbar { width: 8px; }
+        .keypad-wrapper::-webkit-scrollbar-thumb { background: #00ffcc; border-radius: 4px; }
+        .keypad-wrapper::-webkit-scrollbar-track { background: #111; }
+        
         .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
         .key-btn { background: #151515; border: 2px solid #333; color: #fff; padding: 15px 0; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center; width: 100%; }
         .key-btn:hover { border-color: #00ffcc; }
-        .key-btn.correct { background: #00ffcc !important; color: #000 !important; border-color: #00ffcc !important; box-shadow: 0 0 15px #00ffcc; }
+        .key-btn.correct { background: #00ffcc !important; color: #000 !important; border-color: #00ffcc !important; box-shadow: 0 0 15px #00ffcc; pointer-events: none; }
         
         @keyframes errorFlash { 0% { background: #ff0033; border-color: #ff0033; transform: scale(0.95); } 100% { background: #151515; border-color: #333; transform: scale(1); } }
         .key-btn.error { animation: errorFlash 0.4s ease-out; }
 
-        /* GÜNCELLENMİŞ GERÇEKÇİ PARŞÖMEN TASARIMI */
+        /* Daha Gerçekçi Yıpranmış Parşömen */
         .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; perspective: 1000px; }
         .parchment { 
-            background: linear-gradient(to bottom right, #e8d3b9, #dcbfa3, #c5a687); 
-            color: #2b180d; 
-            border: 2px solid #8b6c42; 
-            /* Yırtık, asimetrik kenar görünümü */
-            border-radius: 3px 25px 5px 15px / 25px 4px 20px 6px; 
-            padding: 40px 20px; 
+            background-color: #e2cfa7;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 108, 66, 0.15) 10%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(139, 108, 66, 0.2) 20%, transparent 50%),
+                linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent);
+            background-size: 100% 100%, 100% 100%, 4px 4px;
+            color: #382515; 
+            padding: 50px 30px; 
             width: 90%; 
-            max-width: 400px; 
+            max-width: 420px; 
             text-align: center; 
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.8), inset 0 0 30px rgba(100, 70, 30, 0.4); 
+            box-shadow: 8px 10px 20px rgba(0,0,0,0.7), inset 0 0 35px rgba(100, 70, 30, 0.5); 
             position: relative; 
-        }
-        /* Kağıt lekesi dokuları */
-        .parchment::before { 
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: radial-gradient(circle at 20% 30%, rgba(139, 108, 66, 0.1) 0%, transparent 20%), radial-gradient(circle at 80% 80%, rgba(139, 108, 66, 0.15) 0%, transparent 30%); 
-            pointer-events: none; border-radius: inherit; 
+            /* Yırtık ve asimetrik kenar efekti */
+            clip-path: polygon(2% 1%, 97% 3%, 99% 97%, 3% 98%, 0% 45%);
+            border-radius: 5px;
         }
         
-        .p-text { 
-            font-size: 1.2rem; 
-            color: #4a3623; 
-            margin-bottom: 10px; 
-            font-family: 'Georgia', 'Times New Roman', serif; 
-            font-style: italic; 
-            font-weight: bold; 
-        }
-        .p-motif { 
-            font-size: 2.8rem; letter-spacing: 8px; margin: 15px 0; border-bottom: 2px dashed #8b6c42; padding-bottom: 20px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); font-family: serif; 
-        }
-        .p-solution { 
-            font-size: 2.5rem; color: #7a1111; letter-spacing: 10px; margin-top: 15px; font-weight: bold; text-shadow: 0 0 5px rgba(122, 17, 17, 0.2); 
-            /* Tuşlarla BİREBİR aynı gözükmesi için ana fonta sabitlendi */
-            font-family: 'Rajdhani', sans-serif; 
-        }
+        .p-text { font-size: 1.3rem; color: #4a3623; margin-bottom: 10px; font-family: 'Georgia', serif; font-style: italic; font-weight: bold; }
+        .p-motif { font-size: 2.8rem; letter-spacing: 8px; margin: 20px 0; border-bottom: 2px dashed rgba(139, 108, 66, 0.5); padding-bottom: 25px; font-weight: bold; font-family: serif; text-shadow: 1px 1px 1px rgba(255,255,255,0.3); }
+        .p-solution { font-size: 2.5rem; color: #7a1111; letter-spacing: 12px; margin-top: 20px; font-weight: bold; font-family: 'Rajdhani', sans-serif; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
         
-        .turn-anim { animation: pageFlip 0.5s ease-in-out; }
+        .turn-anim { animation: pageFlip 0.4s ease-in-out; }
         @keyframes pageFlip {
-            0% { transform: rotateY(0deg); opacity: 1; }
-            49% { transform: rotateY(90deg); opacity: 0; }
-            50% { transform: rotateY(-90deg); opacity: 0; }
-            100% { transform: rotateY(0deg); opacity: 1; }
+            0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+            50% { transform: rotateY(90deg) scale(0.95); opacity: 0; }
+            100% { transform: rotateY(0deg) scale(1); opacity: 1; }
         }
 
         .book-controls { display: flex; justify-content: space-between; align-items: center; width: 80%; margin-top: 25px; }
@@ -114,8 +107,16 @@
         .page-btn:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
         .page-indicator { font-size: 1.2rem; color: #aaa; font-family: 'Share Tech Mono', monospace; }
 
-        #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
-        .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); }
+        /* Oylama ve Bitiş Ekranları */
+        #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); min-width: 300px; }
+        .vote-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .vote-btn { background: #222; border: 2px solid #555; color: white; padding: 15px; font-size: 1.2rem; cursor: pointer; border-radius: 5px; }
+        .vote-btn:hover { background: #ff0033; border-color: #ff0033; }
+        
+        #endgame-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .end-title { font-size: 4rem; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; }
+        .end-sub { font-size: 2rem; color: #aaa; }
 
         @media (max-width: 600px) {
             .game-panel { padding: 15px; }
@@ -150,8 +151,10 @@
     <div id="role-reveal-screen" class="screen">
         <h2 style="color: #aaa;">GÖREV DAĞILIMI</h2>
         <div class="role-card">
-            <div style="font-size: 1.2rem; color: #888; margin-bottom: 10px;">Atanan Rolünüz:</div>
+            <div class="partner-info" id="reveal-partner">B İLE EKİPSİN</div>
+            <div style="font-size: 1.2rem; color: #888; margin-bottom: 10px;">GÖREVİN:</div>
             <div class="role-title glow-text" id="reveal-role">YÜKLENİYOR...</div>
+            <div id="assassin-msg" style="display: none;" class="assassin-alert">SUİKASTÇİSİN</div>
         </div>
         <button id="ready-btn" onclick="playerReady()">Göreve Hazırım</button>
     </div>
@@ -176,7 +179,9 @@
                     <div class="wall-strip-title">Duvardaki Antik Motif</div>
                     <div class="wall-symbols" id="saha-wall-motif">[ ᚠ ᚢ ᚦ ᚨ ]</div>
                 </div>
-                <div class="keypad-grid" id="keypad"></div>
+                <div class="keypad-wrapper">
+                    <div class="keypad-grid" id="keypad"></div>
+                </div>
             </div>
             
             <div class="game-panel" id="panel-katip" style="display:none;">
@@ -201,10 +206,19 @@
 
     <div id="emergency-modal">
         <div class="modal-content">
-            <h1 style="color: #ff3366; font-size: 3rem; margin-bottom: 10px;">ACİL DURUM TOPLANTISI</h1>
-            <p id="em-modal-desc" style="font-size: 1.5rem; color: #ccc; margin-bottom: 30px;">Tartışma aşaması (Oylama yok).</p>
-            <button onclick="closeEmergency()" style="background: #333;">Tartışmayı Bitir (Süreyi Başlat)</button>
+            <h1 style="color: #ff3366; font-size: 2.5rem; margin-bottom: 10px;">ACİL DURUM</h1>
+            <p id="em-modal-desc" style="font-size: 1.2rem; color: #ccc; margin-bottom: 20px;">Tartışma aşaması.</p>
+            <div id="vote-section" style="display: none; width: 100%;">
+                <div class="vote-list" id="vote-list"></div>
+            </div>
+            <button id="em-close-btn" onclick="closeEmergency()" style="background: #333; margin-top: 20px;">Tartışmayı Bitir</button>
         </div>
+    </div>
+
+    <div id="endgame-screen">
+        <div class="end-title" id="end-main-text"></div>
+        <div class="end-sub" id="end-sub-text"></div>
+        <button onclick="location.reload()" style="margin-top: 40px; background: #333;">Yeniden Başla</button>
     </div>
 
     <script>
@@ -215,8 +229,8 @@
         let state = {
             name: '', isHost: false, players: [], myRole: '',
             gameData: { puzzles: [], activeIndex: 0 },
-            emergencyUses: 2,
-            katipCurrentPage: 0
+            emergencyUses: 2, katipCurrentPage: 0,
+            votes: {}, myId: ''
         };
 
         const prefix = "kaos-game-"; 
@@ -224,7 +238,7 @@
         const wallSymbols = ["ᚠ","ᚢ","ᚦ","ᚨ","ᚱ","ᚲ","ᚷ","ᚹ","ᚺ","ᚾ","ᛁ","ᛃ","ᛇ","ᛈ","ᛉ","ᛊ","ᛏ","ᛒ","ᛖ","ᛗ"];
 
         function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.screen, #endgame-screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
@@ -237,8 +251,9 @@
             document.getElementById('btn-create').innerText = "Oluşturuluyor...";
             peer = new Peer(prefix + rawCode);
 
-            peer.on('open', () => {
-                state.players.push({ id: peer.id, name: nick, ready: false });
+            peer.on('open', (id) => {
+                state.myId = id;
+                state.players.push({ id: id, name: nick, ready: false });
                 document.getElementById('display-room-code').innerText = rawCode;
                 updateLobbyUI();
                 document.getElementById('start-game-btn').style.display = 'block';
@@ -258,6 +273,8 @@
                         checkAllReady();
                     }
                     if (data.type === 'emergency') { triggerLocalEmergency(data.usesLeft); }
+                    if (data.type === 'vote') { handleVote(conn.peer, data.targetId); }
+                    if (data.type === 'imha_success') { triggerWin('imha'); }
                 });
             });
         }
@@ -271,7 +288,8 @@
             document.getElementById('btn-join').innerText = "Bağlanıyor...";
             peer = new Peer();
 
-            peer.on('open', () => {
+            peer.on('open', (id) => {
+                state.myId = id;
                 hostConnection = peer.connect(prefix + code);
                 hostConnection.on('open', () => {
                     hostConnection.send({ type: 'join', name: nick });
@@ -283,12 +301,18 @@
                     if (data.type === 'update_lobby') { state.players = data.players; updateLobbyUI(); }
                     if (data.type === 'start_game') {
                         state.gameData = data.gameData;
-                        state.myRole = data.roles.find(r => r.id === peer.id).role;
+                        const myData = data.roles.find(r => r.id === state.myId);
+                        state.myRole = myData.role;
+                        
+                        document.getElementById('reveal-partner').innerText = `${myData.partner} İLE EKİPSİN`;
                         document.getElementById('reveal-role').innerText = state.myRole;
+                        if(myData.isAssassin) document.getElementById('assassin-msg').style.display = 'block';
+                        
                         showScreen('role-reveal-screen');
                     }
                     if (data.type === 'start_timer') { startGameScreen(); }
                     if (data.type === 'emergency') { triggerLocalEmergency(data.usesLeft); }
+                    if (data.type === 'end_game') { showEndgame(data); }
                 });
             });
         }
@@ -299,23 +323,15 @@
             const list = document.getElementById('lobby-players');
             list.innerHTML = '';
             state.players.forEach((p, i) => {
-                list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name} ${i===0?'[Kurucu]':''}</span> <span class="status-ready">Bağlandı</span></div>`;
+                list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name}</span> <span class="status-ready">Bağlandı</span></div>`;
             });
         }
 
         function generatePuzzles() {
             let puzzles = [];
             for(let i=0; i<20; i++) {
-                let w = [];
-                while(w.length < 4) {
-                    let r = wallSymbols[Math.floor(Math.random() * wallSymbols.length)];
-                    if(!w.includes(r)) w.push(r);
-                }
-                let s = [];
-                while(s.length < 4) {
-                    let k = keypadSymbols[Math.floor(Math.random() * keypadSymbols.length)];
-                    if(!s.includes(k)) s.push(k);
-                }
+                let w = []; while(w.length < 4) { let r = wallSymbols[Math.floor(Math.random() * wallSymbols.length)]; if(!w.includes(r)) w.push(r); }
+                let s = []; while(s.length < 4) { let k = keypadSymbols[Math.floor(Math.random() * keypadSymbols.length)]; if(!s.includes(k)) s.push(k); }
                 puzzles.push({ motif: w, solution: s });
             }
             return { puzzles: puzzles, activeIndex: Math.floor(Math.random() * 20) };
@@ -325,19 +341,37 @@
             if (state.players.length < 2) return alert("En az 2 kişi lazım!");
             state.gameData = generatePuzzles();
             
-            const roles = Math.random() > 0.5 ? ["KATİP", "SAHA ELEMANI"] : ["SAHA ELEMANI", "KATİP"];
-            const assigned = [ { id: state.players[0].id, role: roles[0] }, { id: state.players[1].id, role: roles[1] } ];
-            state.myRole = roles[0];
+            let shuffled = [...state.players].sort(() => 0.5 - Math.random());
+            let assigned = [];
+            let assassinIndex = Math.floor(Math.random() * shuffled.length);
             
-            broadcast({ type: 'start_game', roles: assigned, gameData: state.gameData });
+            for(let i=0; i<shuffled.length; i+=2) {
+                let p1 = shuffled[i];
+                let p2 = shuffled[i+1];
+                if(p2) {
+                    assigned.push({ id: p1.id, role: "KATİP", partner: p2.name, isAssassin: i === assassinIndex });
+                    assigned.push({ id: p2.id, role: "SAHA ELEMANI", partner: p1.name, isAssassin: (i+1) === assassinIndex });
+                } else {
+                    assigned.push({ id: p1.id, role: "SAHA ELEMANI", partner: "YOK", isAssassin: i === assassinIndex });
+                }
+            }
             
+            state.gameData.assignedRoles = assigned; // Host saklar
+            const myData = assigned.find(r => r.id === state.myId);
+            state.myRole = myData.role;
+            
+            broadcast({ type: 'start_game', roles: assigned, gameData: { puzzles: state.gameData.puzzles, activeIndex: state.gameData.activeIndex } });
+            
+            document.getElementById('reveal-partner').innerText = `${myData.partner} İLE EKİPSİN`;
             document.getElementById('reveal-role').innerText = state.myRole;
+            if(myData.isAssassin) document.getElementById('assassin-msg').style.display = 'block';
+            
             showScreen('role-reveal-screen');
         }
 
         function playerReady() {
             document.getElementById('ready-btn').style.display = 'none';
-            if (state.isHost) { state.players[0].ready = true; checkAllReady(); }
+            if (state.isHost) { state.players.find(p=>p.id===state.myId).ready = true; checkAllReady(); }
             else { hostConnection.send({ type: 'ready' }); }
         }
 
@@ -382,6 +416,11 @@
 
             if(isCorrect) {
                 btnElement.classList.add('correct');
+                let correctCount = document.querySelectorAll('.key-btn.correct').length;
+                if(correctCount === 4) {
+                    if(state.isHost) triggerWin('imha');
+                    else hostConnection.send({ type: 'imha_success' });
+                }
             } else {
                 btnElement.classList.add('error');
                 setTimeout(() => { btnElement.classList.remove('error'); }, 400);
@@ -399,20 +438,12 @@
             let newPage = state.katipCurrentPage + dir;
             if(newPage >= 0 && newPage < 20) {
                 const paper = document.getElementById('parchment-paper');
-                paper.classList.remove('turn-anim');
-                void paper.offsetWidth; 
-                paper.classList.add('turn-anim');
-                
-                setTimeout(() => {
-                    state.katipCurrentPage = newPage;
-                    renderKatipPage();
-                }, 250);
+                paper.classList.remove('turn-anim'); void paper.offsetWidth; paper.classList.add('turn-anim');
+                setTimeout(() => { state.katipCurrentPage = newPage; renderKatipPage(); }, 200);
             }
         }
 
-        let gameTimer;
-        let timeLeft = 90;
-        
+        let gameTimer; let timeLeft = 90;
         function startTimer() {
             gameTimer = setInterval(() => {
                 timeLeft--;
@@ -430,7 +461,6 @@
             
             if(state.isHost) { broadcast({ type: 'emergency', usesLeft: state.emergencyUses }); }
             else { hostConnection.send({ type: 'emergency', usesLeft: state.emergencyUses }); }
-            
             triggerLocalEmergency(state.emergencyUses);
         }
 
@@ -442,10 +472,82 @@
             const modalDesc = document.getElementById('em-modal-desc');
             if(usesLeft === 1) {
                 modalDesc.innerText = "Sadece tartışma aşaması. Birini asamazsınız.";
+                document.getElementById('vote-section').style.display = 'none';
+                document.getElementById('em-close-btn').style.display = 'block';
             } else {
-                modalDesc.innerText = "Kritik karar! Oylama zamanı. (Oylama arayüzü eklenecek)";
+                modalDesc.innerText = "Kritik karar! Aranızdaki haini oylayın.";
+                document.getElementById('em-close-btn').style.display = 'none';
+                document.getElementById('vote-section').style.display = 'block';
+                renderVoteList();
             }
             document.getElementById('emergency-modal').style.display = 'flex';
+        }
+
+        function renderVoteList() {
+            const list = document.getElementById('vote-list');
+            list.innerHTML = '';
+            state.players.forEach(p => {
+                list.innerHTML += `<button class="vote-btn" onclick="castVote('${p.id}')">${p.name}</button>`;
+            });
+        }
+
+        function castVote(targetId) {
+            document.getElementById('vote-list').innerHTML = "<p style='color:#0f0; font-size:1.2rem;'>Oyunuz kaydedildi. Diğer ajanlar bekleniyor...</p>";
+            if(state.isHost) { handleVote(state.myId, targetId); }
+            else { hostConnection.send({ type: 'vote', targetId: targetId }); }
+        }
+
+        function handleVote(voterId, targetId) {
+            if(!state.isHost) return;
+            state.votes[voterId] = targetId;
+            
+            if(Object.keys(state.votes).length === state.players.length) {
+                let counts = {};
+                for(let v in state.votes) { counts[state.votes[v]] = (counts[state.votes[v]] || 0) + 1; }
+                let max = 0; let hangedId = null;
+                for(let t in counts) { if(counts[t] > max) { max = counts[t]; hangedId = t; } }
+                
+                let assassin = state.gameData.assignedRoles.find(x => x.isAssassin);
+                let hanged = state.players.find(p => p.id === hangedId);
+                let wasAssassin = hangedId === (assassin ? assassin.id : null);
+                
+                let result = { type: 'end_game', reason: 'vote', hangedName: hanged.name, wasAssassin: wasAssassin };
+                broadcast(result);
+                showEndgame(result);
+            }
+        }
+
+        function triggerWin(reason) {
+            if(!state.isHost) return;
+            let result = { type: 'end_game', reason: reason };
+            broadcast(result);
+            showEndgame(result);
+        }
+
+        function showEndgame(data) {
+            clearInterval(gameTimer);
+            document.getElementById('emergency-modal').style.display = 'none';
+            const title = document.getElementById('end-main-text');
+            const sub = document.getElementById('end-sub-text');
+            
+            if(data.reason === 'imha') {
+                title.innerText = "BOMBA İMHA EDİLDİ";
+                title.style.color = "#00ffcc";
+                sub.innerText = "İMHA EKİBİ KAZANDI!";
+                sub.style.color = "#00ffcc";
+            } else if(data.reason === 'vote') {
+                title.innerText = `${data.hangedName} ASILDI!`;
+                if(data.wasAssassin) {
+                    title.style.color = "#00ffcc";
+                    sub.innerText = "İMHA EKİBİ KAZANDI!";
+                    sub.style.color = "#00ffcc";
+                } else {
+                    title.style.color = "#ff0033";
+                    sub.innerText = "SUİKASTÇİ KAZANDI!";
+                    sub.style.color = "#ff0033";
+                }
+            }
+            showScreen('endgame-screen');
         }
 
         function closeEmergency() {

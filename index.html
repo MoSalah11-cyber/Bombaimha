@@ -43,7 +43,6 @@
         .header-info span { color: #fff; font-weight: bold; }
         #timer { font-size: 2.5rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; }
         
-        /* Acil Durum Butonu */
         .emergency-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .emergency-btn { background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; color: white; width: 50px; height: 50px; font-weight: bold; cursor: pointer; box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.6), inset 0 -4px 6px rgba(0, 0, 0, 0.4), 0 0 15px #ff0033; position: relative; display: flex; align-items: center; justify-content: center; transition: 0.1s; padding: 0; margin: 0; }
         .emergency-btn::before { content: ''; position: absolute; top: 3px; left: 15%; width: 70%; height: 35%; background: rgba(255, 255, 255, 0.5); border-radius: 50px 50px 0 0; }
@@ -71,7 +70,6 @@
         @keyframes errorFlash { 0% { background: #ff0033; border-color: #ff0033; transform: scale(0.95); } 100% { background: #151515; border-color: #333; transform: scale(1); } }
         .key-btn.error { animation: errorFlash 0.4s ease-out; }
 
-        /* Parşömen */
         .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; perspective: 1000px; }
         .parchment { 
             background-color: #e2cfa7;
@@ -96,7 +94,6 @@
         .page-btn:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
         .page-indicator { font-size: 1.2rem; color: #aaa; font-family: 'Share Tech Mono', monospace; }
 
-        /* Modal ve Bildirimler */
         #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
         .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); min-width: 300px; }
         .vote-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
@@ -234,10 +231,10 @@
 
         const prefix = "kaos-game-"; 
         
-        // Çok daha karmaşık ve birbirine benzeyen tuş sembolleri
-        const keypadSymbols = ["▤","▥","▦","▧","▨","▩","◰","◱","◲","◳","◴","◵","◶","◷","◨","◩","◪","◫","◧","▣"];
+        // Çok daha karmaşık ve iç içe geçmiş tuş sembolleri
+        const keypadSymbols = ["回", "₪", "⎈", "⎉", "⎊", "⍟", "⍣", "⊛", "⊜", "⊝", "⊞", "⊟", "⊠", "⊡", "⎔", "⍠", "⍡", "⍢", "⍤", "⍥"];
         
-        // Birbirine çok benzeyen ve aynı harflerle başlayan duvar motifleri
+        // Benzer başlangıç harfli duvar motifleri
         const wallMotifs = [
             "ᚠ ᚢ ᚦ ᚨ", "ᚠ ᚢ ᚦ ᚱ", "ᚠ ᚢ ᚦ ᚲ", "ᚠ ᚢ ᚷ ᚹ", "ᚠ ᚢ ᚷ ᚺ",
             "ᚺ ᚾ ᛁ ᛃ", "ᚺ ᚾ ᛁ ᛇ", "ᚺ ᚾ ᛁ ᛈ", "ᚺ ᚾ ᛉ ᛊ", "ᚺ ᚾ ᛉ ᛏ",
@@ -353,7 +350,8 @@
                 while(s.length < 4) { let k = keypadSymbols[Math.floor(Math.random() * keypadSymbols.length)]; if(!s.includes(k)) s.push(k); }
                 puzzles.push({ motif: w, solution: s });
             }
-            return puzzles;
+            // Sayfaları iyice karıştır ki benzer kombinasyonlar kitapta arka arkaya dizilmesin.
+            return puzzles.sort(() => 0.5 - Math.random());
         }
 
         function hostStartGame() {
@@ -468,7 +466,6 @@
                 showNotify(`${teamName} TAKIMI GÖREVİ TAMAMLADI!`);
             }
             
-            // Tüm takımlar bitirdi mi?
             let totalTeams = [...new Set(state.gameData.assignedRoles.map(r => r.team))].length;
             if(completedTeams.length >= totalTeams) {
                 triggerWin('imha');

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaos Protokolü - Bomba İmha</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #111; color: #0f0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; }
+        .active { display: flex; }
+
+        h1, h2 { color: #ff3333; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 0 10px #ff3333; }
+        
+        input { background: #000; border: 2px solid #0f0; color: #0f0; padding: 10px; font-size: 16px; margin: 10px 0; text-align: center; width: 250px; }
+        input:focus { outline: none; box-shadow: 0 0 10px #0f0; }
+        
+        button { background: #222; border: 2px solid #0f0; color: #0f0; padding: 10px 20px; font-size: 16px; cursor: pointer; transition: 0.2s; margin: 5px; text-transform: uppercase; font-weight: bold; }
+        button:hover { background: #0f0; color: #000; }
+        button:disabled { border-color: #555; color: #555; cursor: not-allowed; }
+        
+        /* Game UI */
+        #game-header { position: absolute; top: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #000; border-bottom: 2px solid #333; }
+        #timer { font-size: 32px; color: #ff3333; font-weight: bold; text-shadow: 0 0 10px #ff3333; }
+        
+        #emergency-btn { background: #ff0000; color: white; border: 2px solid #fff; border-radius: 50%; width: 80px; height: 80px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px #ff0000; }
+        #emergency-btn:active { transform: scale(0.95); }
+
+        .game-area { display: flex; width: 100%; max-width: 1000px; margin-top: 80px; gap: 20px; height: calc(100% - 100px); }
+        
+        .panel { flex: 1; border: 2px solid #333; background: #1a1a1a; padding: 20px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; }
+        
+        .keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; width: 100%; }
+        .keypad button { font-size: 20px; padding: 15px; border-radius: 5px; background: #333; border: 1px solid #555; }
+        
+        /* Discussion Modal */
+        #discussion-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; align-items: center; justify-content: center; }
+        .vote-list { display: flex; gap: 15px; margin-top: 20px; }
+        .vote-btn { background: #333; border: 2px solid #ff3333; color: white; padding: 15px 30px; }
+        .vote-btn:hover { background: #ff3333; }
+
+    </style>
+</head>
+<body>
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="login-screen" class="screen active">
+        <h1>Bomba İmha Timi</h1>
+        <input type="text" id="nickname" placeholder="Nick Seçin (Örn: Salah)">
+        <button onclick="createRoom()">Oda Kur</button>
+        <p style="margin: 15px 0;">veya</p>
+        <input type="text" id="room-code-input" placeholder="Oda Kodu Gir">
+        <button onclick="joinRoom()">Odaya Katıl</button>
+    </div>
+
+    <!-- LOBİ EKRANI -->
+    <div id="lobby-screen" class="screen">
+        <h2>Bekleme Lobisi</h2>
+        <h3 style="color: #fff; margin-bottom: 20px;">Oda Kodu: <span id="display-room-code" style="color: #0f0;"></span></h3>
+        
+        <div style="border: 1px solid #0f0; padding: 20px; width: 300px; margin-bottom: 20px; background: #000;">
+            <p>1. <span id="p1">Bekleniyor...</span></p>
+            <p>2. <span id="p2">Bekleniyor...</span></p>
+            <p>3. <span id="p3">Bekleniyor...</span></p>
+            <p>4. <span id="p4">Bekleniyor...</span></p>
+        </div>
+        
+        <button id="start-btn" onclick="startGame()">Oyunu Başlat</button>
+    </div>
+
+    <!-- OYUN EKRANI -->
+    <div id="game-screen" class="screen">
+        <div id="game-header">
+            <div>Takım: Alpha | Rol: <span id="player-role" style="color: #fff;">Saha Elemanı</span></div>
+            <div id="timer">01:30</div>
+            <button id="emergency-btn" onclick="triggerEmergency()">ACİL<br>DURUM<br>(<span id="btn-charges">2</span>)</button>
+        </div>
+
+        <div class="game-area">
+            <!-- Duvar / Kitap Paneli -->
+            <div class="panel">
+                <h3 id="panel-title">Duvardaki Desen</h3>
+                <div style="margin-top: 30px; font-size: 40px; text-align: center;" id="pattern-display">
+                    [ ◬ ◯ ▱ ◮ ]
+                </div>
+                <p style="margin-top: 20px; color: #888; text-align: center;">Katibe bu deseni tarif et. O sana hangi tuşlara basacağını söyleyecek.</p>
+            </div>
+
+            <!-- Tuş Takımı Paneli -->
+            <div class="panel">
+                <h3>İmha Paneli (Tuş Takımı)</h3>
+                <div class="keypad" id="keypad">
+                    <!-- JS ile doldurulacak -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TARTIŞMA / OYLAMA EKRANI -->
+    <div id="discussion-modal">
+        <h1 style="font-size: 40px; color: #ff3333;">ACİL DURUM TOPLANTISI</h1>
+        <p id="discussion-info" style="font-size: 20px;">Sadece tartışın. Oylama yok.</p>
+        <h2 id="discussion-timer" style="margin-top: 20px; font-size: 50px;">30</h2>
+        
+        <div class="vote-list" id="vote-section" style="display: none;">
+            <button class="vote-btn">Oyuncu 1'i As</button>
+            <button class="vote-btn">Oyuncu 2'yi As</button>
+            <button class="vote-btn">Oyuncu 3'ü As</button>
+            <button class="vote-btn">Oyuncu 4'ü As</button>
+        </div>
+    </div>
+
+    <script>
+        let emergencyCharges = 2;
+        let gameTimer;
+        let timeLeft = 90;
+
+        // Ekranlar arası geçiş
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function createRoom() {
+            const nick = document.getElementById('nickname').value || "Oyuncu1";
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById('display-room-code').innerText = code;
+            document.getElementById('p1').innerText = nick + " (Kurucu)";
+            showScreen('lobby-screen');
+            // Simülasyon: Diğer oyuncular 2 saniye içinde katılmış gibi yapalım
+            setTimeout(() => { document.getElementById('p2').innerText = "Viper"; }, 1000);
+            setTimeout(() => { document.getElementById('p3').innerText = "Ghost"; }, 2000);
+            setTimeout(() => { document.getElementById('p4').innerText = "Shadow"; }, 3000);
+        }
+
+        function joinRoom() {
+            const code = document.getElementById('room-code-input').value;
+            if(!code) return alert("Kod girmelisin!");
+            showScreen('lobby-screen');
+        }
+
+        function startGame() {
+            showScreen('game-screen');
+            startTimer();
+            generateKeypad();
+        }
+
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                if (timeLeft <= 0) {
+                    clearInterval(gameTimer);
+                    alert("SÜRE BİTTİ! BOMBA PATLADI!");
+                }
+            }, 1000);
+        }
+
+        function generateKeypad() {
+            const keypad = document.getElementById('keypad');
+            const symbols = ["∇","∆","◬","◮","◯","◎","●","◐","◑","▱","▰","▣","◈","◉","◧","◨","◩","◪","◫","◭"];
+            let html = "";
+            for(let i = 0; i < 20; i++) {
+                html += `<button onclick="this.style.background='red'">${symbols[i]}</button>`;
+            }
+            keypad.innerHTML = html;
+        }
+
+        function triggerEmergency() {
+            if (emergencyCharges <= 0) return;
+            
+            clearInterval(gameTimer); // Oyunu durdur
+            emergencyCharges--;
+            document.getElementById('btn-charges').innerText = emergencyCharges;
+            
+            const modal = document.getElementById('discussion-modal');
+            const info = document.getElementById('discussion-info');
+            const voteSection = document.getElementById('vote-section');
+            const discTimer = document.getElementById('discussion-timer');
+            
+            modal.style.display = 'flex';
+            
+            if (emergencyCharges === 1) {
+                info.innerText = "Sadece tartışma vakti! Kimseyi asamazsınız. (Sonraki basışta oylama açılır)";
+                voteSection.style.display = 'none';
+            } else {
+                info.innerText = "Kritik karar! Birini asmak zorundasınız ya da pas geçin.";
+                voteSection.style.display = 'flex';
+            }
+
+            // 30 saniyelik tartışma sayacı
+            let dTime = 30;
+            discTimer.innerText = dTime;
+            let dInterval = setInterval(() => {
+                dTime--;
+                discTimer.innerText = dTime;
+                if(dTime <= 0) {
+                    clearInterval(dInterval);
+                    modal.style.display = 'none';
+                    startTimer(); // Oyunu devam ettir
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

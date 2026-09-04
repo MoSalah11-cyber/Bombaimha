@@ -39,7 +39,7 @@
         .header-info span { color: #fff; font-weight: bold; }
         #timer { font-size: 2.5rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; }
         
-        /* Yeni Camekanlı Acil Durum Butonu */
+        /* Acil Durum Butonu */
         .emergency-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .emergency-btn { background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; color: white; width: 50px; height: 50px; font-weight: bold; cursor: pointer; box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.6), inset 0 -4px 6px rgba(0, 0, 0, 0.4), 0 0 15px #ff0033; position: relative; display: flex; align-items: center; justify-content: center; transition: 0.1s; padding: 0; margin: 0; }
         .emergency-btn::before { content: ''; position: absolute; top: 3px; left: 15%; width: 70%; height: 35%; background: rgba(255, 255, 255, 0.5); border-radius: 50px 50px 0 0; }
@@ -50,6 +50,7 @@
         .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); align-items: center; justify-content: center; }
         .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 700px; width: 100%; position: relative; }
         
+        /* Saha Elemanı - Duvar Şeridi */
         .wall-strip { width: 100%; background: #050505; border: 1px solid #444; border-radius: 5px; padding: 15px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 15px #000; }
         .wall-strip-title { font-size: 0.9rem; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
         .wall-symbols { font-size: 2.5rem; color: #a89f91; letter-spacing: 15px; font-family: serif; text-shadow: 0 0 5px rgba(168, 159, 145, 0.5); }
@@ -63,25 +64,39 @@
         @keyframes errorFlash { 0% { background: #ff0033; border-color: #ff0033; transform: scale(0.95); } 100% { background: #151515; border-color: #333; transform: scale(1); } }
         .key-btn.error { animation: errorFlash 0.4s ease-out; }
 
-        .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        .pattern-box { background: #0a0a0f; border: 2px dashed #444; padding: 30px; border-radius: 10px; font-size: 3.5rem; margin-bottom: 20px; text-align: center; width: 80%; color: #a89f91; font-family: serif; letter-spacing: 10px; }
-        .solution-box { margin-top: 10px; text-align: center; }
-        .solution-keys { color: #ff3366; font-size: 2.5rem; letter-spacing: 10px; margin-top: 10px; text-shadow: 0 0 10px rgba(255,51,102,0.5); }
+        /* YENİ KATİP KİTABI - PARŞÖMEN TASARIMI */
+        .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; perspective: 1000px; }
+        .parchment { background: #dcbfa3; color: #2b180d; border: 2px solid #8b6c42; border-radius: 4px; padding: 40px 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 5px 5px 15px rgba(0,0,0,0.8), inset 0 0 40px rgba(139, 108, 66, 0.5); font-family: 'Times New Roman', serif; position: relative; }
+        .parchment::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(transparent, transparent 25px, rgba(139, 108, 66, 0.1) 25px, rgba(139, 108, 66, 0.1) 27px); pointer-events: none; border-radius: 4px; }
         
-        .book-controls { display: flex; justify-content: space-between; align-items: center; width: 80%; margin-top: 30px; }
-        .page-btn { background: #333; padding: 10px 20px; margin: 0; font-size: 1.5rem; border-radius: 5px; }
-        .page-btn:hover { background: #555; }
-        .page-indicator { font-size: 1.2rem; color: #888; font-family: 'Share Tech Mono', monospace; }
+        .p-text { font-size: 1.1rem; color: #4a3623; margin-bottom: 10px; font-style: italic; }
+        .p-motif { font-size: 2.8rem; letter-spacing: 8px; margin: 15px 0; border-bottom: 2px dashed #8b6c42; padding-bottom: 20px; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .p-solution { font-size: 2.2rem; color: #7a1111; letter-spacing: 10px; margin-top: 15px; font-weight: bold; text-shadow: 0 0 5px rgba(122, 17, 17, 0.2); }
+        
+        /* Sayfa Çevirme Efekti */
+        .turn-anim { animation: pageFlip 0.5s ease-in-out; }
+        @keyframes pageFlip {
+            0% { transform: rotateY(0deg); opacity: 1; }
+            49% { transform: rotateY(90deg); opacity: 0; }
+            50% { transform: rotateY(-90deg); opacity: 0; }
+            100% { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        .book-controls { display: flex; justify-content: space-between; align-items: center; width: 80%; margin-top: 25px; }
+        .page-btn { background: #222; border: 1px solid #444; padding: 10px 25px; margin: 0; font-size: 1.5rem; border-radius: 5px; color: #fff; }
+        .page-btn:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
+        .page-indicator { font-size: 1.2rem; color: #aaa; font-family: 'Share Tech Mono', monospace; }
 
         #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
         .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); }
 
-        /* Mobil Uyum */
         @media (max-width: 600px) {
             .game-panel { padding: 15px; }
             .keypad-grid { gap: 8px; }
             .key-btn { padding: 12px 0; font-size: 1.5rem; }
             .wall-symbols { font-size: 2rem; letter-spacing: 10px; }
+            .p-motif { font-size: 2rem; }
+            .p-solution { font-size: 1.8rem; }
             h1 { font-size: 2.2rem; }
             #game-header { padding: 10px 15px; }
         }
@@ -138,19 +153,18 @@
             </div>
             
             <div class="game-panel" id="panel-katip" style="display:none;">
-                <h2 style="color: #888; margin-bottom: 30px;">KILAVUZ KİTABI</h2>
+                <h2 style="color: #888; margin-bottom: 20px;">KILAVUZ KİTABI</h2>
                 <div class="book-container">
-                    <p style="color: #666; margin-bottom: 5px;">Eğer duvarda şu motif varsa:</p>
-                    <div class="pattern-box" id="katip-wall-motif">[ ᚠ ᚢ ᚦ ᚨ ]</div>
-                    
-                    <div class="solution-box">
-                        <p style="font-size: 1.2rem; color: #ccc;">Basılacak Tuşlar:</p>
-                        <div class="solution-keys" id="katip-solution">∇, ◎, ▣, ◪</div>
+                    <div class="parchment" id="parchment-paper">
+                        <div class="p-text">Eğer antik duvarda şu desen belirirse:</div>
+                        <div class="p-motif" id="katip-wall-motif">[ ᚠ ᚢ ᚦ ᚨ ]</div>
+                        <div class="p-text" style="margin-top: 15px;">Mühürü kırmak için girilecek kombinasyon:</div>
+                        <div class="p-solution" id="katip-solution">∇ ◎ ▣ ◪</div>
                     </div>
 
                     <div class="book-controls">
                         <button class="page-btn" onclick="changePage(-1)">&#9664;</button>
-                        <span class="page-indicator" id="katip-page-text">Sayfa 1 / 10</span>
+                        <span class="page-indicator" id="katip-page-text">Sayfa 1 / 20</span>
                         <button class="page-btn" onclick="changePage(1)">&#9654;</button>
                     </div>
                 </div>
@@ -262,9 +276,10 @@
             });
         }
 
+        // 20 farklı kombinasyon üretir
         function generatePuzzles() {
             let puzzles = [];
-            for(let i=0; i<10; i++) {
+            for(let i=0; i<20; i++) {
                 let w = [];
                 while(w.length < 4) {
                     let r = wallSymbols[Math.floor(Math.random() * wallSymbols.length)];
@@ -277,7 +292,7 @@
                 }
                 puzzles.push({ motif: w, solution: s });
             }
-            return { puzzles: puzzles, activeIndex: Math.floor(Math.random() * 10) };
+            return { puzzles: puzzles, activeIndex: Math.floor(Math.random() * 20) };
         }
 
         function hostStartGame() {
@@ -347,18 +362,28 @@
             }
         }
 
+        // Katip Sayfalarını Renderla ve Çevir
         function renderKatipPage() {
             const p = state.gameData.puzzles[state.katipCurrentPage];
             document.getElementById('katip-wall-motif').innerText = `[ ${p.motif.join(' ')} ]`;
-            document.getElementById('katip-solution').innerText = p.solution.join(', ');
-            document.getElementById('katip-page-text').innerText = `Sayfa ${state.katipCurrentPage + 1} / 10`;
+            document.getElementById('katip-solution').innerText = p.solution.join(' ');
+            document.getElementById('katip-page-text').innerText = `Sayfa ${state.katipCurrentPage + 1} / 20`;
         }
 
         function changePage(dir) {
             let newPage = state.katipCurrentPage + dir;
-            if(newPage >= 0 && newPage < 10) {
-                state.katipCurrentPage = newPage;
-                renderKatipPage();
+            if(newPage >= 0 && newPage < 20) {
+                const paper = document.getElementById('parchment-paper');
+                // Animasyonu baştan tetikle
+                paper.classList.remove('turn-anim');
+                void paper.offsetWidth; 
+                paper.classList.add('turn-anim');
+                
+                // Animasyonun ortasında (250ms) yazıları değiştir
+                setTimeout(() => {
+                    state.katipCurrentPage = newPage;
+                    renderKatipPage();
+                }, 250);
             }
         }
 

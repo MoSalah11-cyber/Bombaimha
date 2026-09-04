@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaos Protokolü - Gerçek Multiplayer</title>
+    <title>Kaos Protokolü - Tam Sürüm</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <!-- PeerJS Kütüphanesi (Bağlantı için) -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         .glow-text { text-shadow: 0 0 10px rgba(0, 255, 204, 0.7); color: #00ffcc; }
         .alert-text { text-shadow: 0 0 10px rgba(255, 51, 102, 0.8); color: #ff3366; }
-        .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; animation: fadeIn 0.5s ease-in-out; }
+        .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; animation: fadeIn 0.5s ease-in-out; position: relative; }
         .active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
         h1 { font-size: 3rem; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
         h2 { font-size: 2rem; margin-bottom: 15px; }
         .input-group { position: relative; margin: 15px 0; }
@@ -24,60 +24,74 @@
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.6); }
         button:disabled { filter: grayscale(100%); cursor: not-allowed; }
         button.danger { background: linear-gradient(45deg, #880000, #ff3366); box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4); }
-        button.danger:hover { box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6); }
+        
         .player-list { background: rgba(0, 0, 0, 0.6); border: 1px solid #333; border-radius: 10px; padding: 20px; width: 350px; margin: 20px 0; }
         .player-slot { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 1.2rem; font-family: 'Share Tech Mono', monospace; }
-        .player-slot:last-child { border-bottom: none; }
         .status-ready { color: #00ffcc; }
         .status-waiting { color: #ff9900; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
         .role-card { background: rgba(0, 255, 204, 0.05); border: 2px solid #00ffcc; border-radius: 15px; padding: 40px; margin: 20px 0; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 204, 0.2) inset; }
         .role-title { font-size: 2.5rem; color: #fff; margin-bottom: 10px; }
-        #game-header { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #333; backdrop-filter: blur(5px); }
-        .header-info { display: flex; gap: 20px; font-size: 1.2rem; color: #aaa; }
+        
+        #game-header { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #333; backdrop-filter: blur(5px); z-index: 10; }
+        .header-info { display: flex; gap: 20px; font-size: 1.2rem; color: #aaa; align-items: center; }
         .header-info span { color: #fff; font-weight: bold; }
         #timer { font-size: 2.5rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; }
-        .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); }
-        .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .pattern-box { background: #000; border: 2px dashed #555; padding: 40px; border-radius: 10px; font-size: 4rem; margin-bottom: 20px; text-align: center; width: 100%; }
+        
+        /* Acil Durum Butonu */
+        .emergency-btn { background: #ff0033; border: 2px solid #fff; border-radius: 5px; color: white; padding: 5px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1rem; box-shadow: 0 0 10px #ff0033; margin: 0; }
+        .emergency-btn:hover { background: #cc0000; }
+
+        .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); align-items: center; justify-content: center; }
+        .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 700px; width: 100%; position: relative; }
+        
+        /* Saha Elemanı - Duvar Şeridi */
+        .wall-strip { width: 100%; background: #050505; border: 1px solid #444; border-radius: 5px; padding: 15px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 15px #000; }
+        .wall-strip-title { font-size: 0.9rem; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
+        .wall-symbols { font-size: 2.5rem; color: #a89f91; letter-spacing: 15px; font-family: serif; text-shadow: 0 0 5px rgba(168, 159, 145, 0.5); }
+
         .keypad-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
-        .key-btn { background: #222; border: 1px solid #555; color: #fff; padding: 20px; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .key-btn:hover { background: #333; border-color: #00ffcc; }
-        #notification { position: fixed; top: 20px; background: rgba(0,0,0,0.8); border: 1px solid #ff3366; padding: 15px; border-radius: 5px; color: #fff; z-index: 1000; display: none; }
+        .key-btn { background: #151515; border: 2px solid #333; color: #fff; padding: 20px; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.1s; }
+        .key-btn:hover { border-color: #00ffcc; }
+        .key-btn.correct { background: #00ffcc !important; color: #000 !important; border-color: #00ffcc !important; box-shadow: 0 0 15px #00ffcc; }
+        
+        /* Yanlış Tuş Efekti */
+        @keyframes errorFlash { 0% { background: #ff0033; border-color: #ff0033; transform: scale(0.95); } 100% { background: #151515; border-color: #333; transform: scale(1); } }
+        .key-btn.error { animation: errorFlash 0.4s ease-out; }
+
+        /* Katip - Kılavuz Kitabı */
+        .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .pattern-box { background: #0a0a0f; border: 2px dashed #444; padding: 30px; border-radius: 10px; font-size: 3.5rem; margin-bottom: 20px; text-align: center; width: 80%; color: #a89f91; font-family: serif; letter-spacing: 10px; }
+        .solution-box { margin-top: 10px; text-align: center; }
+        .solution-keys { color: #ff3366; font-size: 2.5rem; letter-spacing: 10px; margin-top: 10px; text-shadow: 0 0 10px rgba(255,51,102,0.5); }
+        
+        .book-controls { display: flex; justify-content: space-between; align-items: center; width: 80%; margin-top: 30px; }
+        .page-btn { background: #333; padding: 10px 20px; margin: 0; font-size: 1.5rem; border-radius: 5px; }
+        .page-btn:hover { background: #555; }
+        .page-indicator { font-size: 1.2rem; color: #888; font-family: 'Share Tech Mono', monospace; }
+
+        /* Modal */
+        #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); }
     </style>
 </head>
 <body>
 
-    <div id="notification"></div>
-
     <!-- 1. GİRİŞ EKRANI -->
     <div id="login-screen" class="screen active">
         <h1 class="glow-text">KAOS PROTOKOLÜ</h1>
-        <p style="color: #aaa; margin-bottom: 30px;">Bağlantı Kuruluyor...</p>
-        
-        <div class="input-group">
-            <input type="text" id="nickname" placeholder="Ajan Adınızı Girin" autocomplete="off">
-        </div>
-        
-        <div style="display: flex; gap: 15px; margin-top: 20px;">
-            <button id="btn-create" onclick="createRoom()">Oda Kur</button>
-        </div>
-        
-        <div class="input-group" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">
-            <input type="text" id="room-code-input" placeholder="Oda Kodunu Girin" maxlength="6" style="text-transform: uppercase;">
-        </div>
+        <div class="input-group"><input type="text" id="nickname" placeholder="Ajan Adınızı Girin" autocomplete="off"></div>
+        <div style="display: flex; gap: 15px; margin-top: 20px;"><button id="btn-create" onclick="createRoom()">Oda Kur</button></div>
+        <div class="input-group" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;"><input type="text" id="room-code-input" placeholder="Oda Kodunu Girin" maxlength="6" style="text-transform: uppercase;"></div>
         <button id="btn-join" onclick="joinRoom()" style="background: linear-gradient(45deg, #333, #555);">Odaya Katıl</button>
     </div>
 
     <!-- 2. LOBİ EKRANI -->
     <div id="lobby-screen" class="screen">
         <h2 class="glow-text">BEKLEME LOBİSİ</h2>
-        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bağlantı Kodu: <strong class="alert-text" id="display-room-code" style="font-size: 2.5rem; letter-spacing: 5px; cursor: pointer;" title="Kopyalamak için tıkla"></strong></p>
-        
-        <div class="player-list" id="lobby-players">
-            <!-- Oyuncular buraya eklenecek -->
-        </div>
-        
+        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bağlantı Kodu: <strong class="alert-text" id="display-room-code" style="font-size: 2.5rem; letter-spacing: 5px;"></strong></p>
+        <div class="player-list" id="lobby-players"></div>
         <button id="start-game-btn" onclick="hostStartGame()" class="danger" style="display: none;">Protokolü Başlat</button>
         <p id="waiting-host-msg" class="status-waiting" style="display: none;">Kurucunun oyunu başlatması bekleniyor...</p>
     </div>
@@ -88,10 +102,8 @@
         <div class="role-card">
             <div style="font-size: 1.2rem; color: #888; margin-bottom: 10px;">Atanan Rolünüz:</div>
             <div class="role-title glow-text" id="reveal-role">YÜKLENİYOR...</div>
-            <p style="color: #ccc; margin-top: 20px; font-size: 1.1rem;" id="reveal-desc"></p>
         </div>
         <button id="ready-btn" onclick="playerReady()">Göreve Hazırım</button>
-        <p id="ready-status" class="status-waiting" style="margin-top: 20px; display: none;">Diğer ajan bekleniyor...</p>
     </div>
 
     <!-- 4. OYUN EKRANI -->
@@ -99,208 +111,196 @@
         <div id="game-header">
             <div class="header-info"><div>ROL: <span id="game-role-display"></span></div></div>
             <div id="timer" class="alert-text">01:30</div>
-            <div class="header-info"><div>BAĞLANTI: <span class="glow-text">GÜVENLİ</span></div></div>
+            <div class="header-info">
+                <button class="emergency-btn" onclick="triggerEmergency()">Acil Durum (<span id="em-count">2</span>)</button>
+            </div>
         </div>
 
         <div class="game-container">
-            <div class="game-panel" id="panel-saha" style="display:none; width: 100%;">
-                <h2 style="color: #888;">İMHA MODÜLÜ</h2>
+            <!-- Saha Elemanı Paneli -->
+            <div class="game-panel" id="panel-saha" style="display:none;">
+                <div class="wall-strip">
+                    <div class="wall-strip-title">Duvardaki Antik Motif</div>
+                    <div class="wall-symbols" id="saha-wall-motif">[ ᚠ ᚢ ᚦ ᚨ ]</div>
+                </div>
                 <div class="keypad-grid" id="keypad"></div>
             </div>
             
-            <div class="game-panel" id="panel-katip" style="display:none; width: 100%;">
-                <h2 style="color: #888;">KILAVUZ KİTABI</h2>
-                <div class="pattern-box">[ ◬ ◯ ▱ ◮ ]</div>
-                <p style="font-size: 1.5rem; text-align: center;">Basılacak Tuşlar:<br><strong style="color: #ff3366; font-size: 2rem;">∇, ◎, ▣, ◪</strong></p>
-                <p style="color: #666; margin-top: 20px; text-align: center;">Saha elemanına bunları ilet.</p>
+            <!-- Katip Paneli -->
+            <div class="game-panel" id="panel-katip" style="display:none;">
+                <h2 style="color: #888; margin-bottom: 30px;">KILAVUZ KİTABI</h2>
+                <div class="book-container">
+                    <p style="color: #666; margin-bottom: 5px;">Eğer duvarda şu motif varsa:</p>
+                    <div class="pattern-box" id="katip-wall-motif">[ ᚠ ᚢ ᚦ ᚨ ]</div>
+                    
+                    <div class="solution-box">
+                        <p style="font-size: 1.2rem; color: #ccc;">Basılacak Tuşlar:</p>
+                        <div class="solution-keys" id="katip-solution">∇, ◎, ▣, ◪</div>
+                    </div>
+
+                    <div class="book-controls">
+                        <button class="page-btn" onclick="changePage(-1)">&#9664;</button>
+                        <span class="page-indicator" id="katip-page-text">Sayfa 1 / 10</span>
+                        <button class="page-btn" onclick="changePage(1)">&#9654;</button>
+                    </div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Acil Durum Modalı -->
+    <div id="emergency-modal">
+        <div class="modal-content">
+            <h1 style="color: #ff3366; font-size: 3rem; margin-bottom: 10px;">ACİL DURUM TOPLANTISI</h1>
+            <p id="em-modal-desc" style="font-size: 1.5rem; color: #ccc; margin-bottom: 30px;">Tartışma aşaması (Oylama yok).</p>
+            <button onclick="closeEmergency()" style="background: #333;">Tartışmayı Bitir (Süreyi Başlat)</button>
         </div>
     </div>
 
     <script>
         let peer = null;
-        let connections = []; // Host için bağlananlar
-        let hostConnection = null; // Client için host bağlantısı
+        let connections = [];
+        let hostConnection = null;
         
         let state = {
-            name: '',
-            isHost: false,
-            players: [], // {id, name, ready}
-            myRole: ''
+            name: '', isHost: false, players: [], myRole: '',
+            gameData: { puzzles: [], activeIndex: 0 },
+            emergencyUses: 2,
+            katipCurrentPage: 0
         };
 
         const prefix = "kaos-game-"; 
-        const symbols = ["∇","∆","◬","◮","◯","◎","●","◐","◑","▱","▰","▣","◈","◉","◧","◨","◩","◪","◫","◭"];
+        // Tuş takımı sembolleri
+        const keypadSymbols = ["∇","∆","◬","◮","◯","◎","●","◐","◑","▱","▰","▣","◈","◉","◧","◨","◩","◪","◫","◭"];
+        // Duvar motifleri (Antik Rünler)
+        const wallSymbols = ["ᚠ","ᚢ","ᚦ","ᚨ","ᚱ","ᚲ","ᚷ","ᚹ","ᚺ","ᚾ","ᛁ","ᛃ","ᛇ","ᛈ","ᛉ","ᛊ","ᛏ","ᛒ","ᛖ","ᛗ"];
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        function showNotify(msg) {
-            const notif = document.getElementById('notification');
-            notif.innerText = msg;
-            notif.style.display = 'block';
-            setTimeout(() => { notif.style.display = 'none'; }, 3000);
-        }
-
-        // --- HOST İŞLEMLERİ ---
+        // --- NETWORK MANTIĞI ---
         function createRoom() {
             const nick = document.getElementById('nickname').value.trim();
-            if(!nick) return alert("Adını gir!");
-            
-            state.name = nick;
-            state.isHost = true;
+            if(!nick) return;
+            state.name = nick; state.isHost = true;
             const rawCode = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const roomCode = prefix + rawCode;
-
+            
             document.getElementById('btn-create').innerText = "Oluşturuluyor...";
-            document.getElementById('btn-create').disabled = true;
+            peer = new Peer(prefix + rawCode);
 
-            peer = new Peer(roomCode);
-
-            peer.on('open', (id) => {
+            peer.on('open', () => {
                 state.players.push({ id: peer.id, name: nick, ready: false });
                 document.getElementById('display-room-code').innerText = rawCode;
                 updateLobbyUI();
-                
                 document.getElementById('start-game-btn').style.display = 'block';
                 showScreen('lobby-screen');
             });
 
             peer.on('connection', (conn) => {
                 connections.push(conn);
-                
                 conn.on('data', (data) => {
                     if (data.type === 'join') {
                         state.players.push({ id: conn.peer, name: data.name, ready: false });
                         broadcast({ type: 'update_lobby', players: state.players });
                         updateLobbyUI();
-                        showNotify(data.name + " odaya katıldı!");
                     }
                     if (data.type === 'ready') {
-                        const p = state.players.find(x => x.id === conn.peer);
-                        if(p) p.ready = true;
+                        state.players.find(x => x.id === conn.peer).ready = true;
                         checkAllReady();
                     }
+                    if (data.type === 'emergency') { triggerLocalEmergency(data.usesLeft); }
                 });
-
-                conn.on('close', () => {
-                    state.players = state.players.filter(p => p.id !== conn.peer);
-                    connections = connections.filter(c => c.peer !== conn.peer);
-                    broadcast({ type: 'update_lobby', players: state.players });
-                    updateLobbyUI();
-                });
-            });
-
-            peer.on('error', (err) => { alert("Bağlantı Hatası: " + err); });
-        }
-
-        function broadcast(data) {
-            connections.forEach(c => {
-                if(c.open) c.send(data);
             });
         }
 
-        // --- CLIENT İŞLEMLERİ ---
         function joinRoom() {
             const nick = document.getElementById('nickname').value.trim();
             let code = document.getElementById('room-code-input').value.trim().toUpperCase();
-            if(!nick || !code) return alert("Adını ve Oda Kodunu gir!");
-
-            state.name = nick;
-            state.isHost = false;
+            if(!nick || !code) return;
+            state.name = nick; state.isHost = false;
             
             document.getElementById('btn-join').innerText = "Bağlanıyor...";
-            document.getElementById('btn-join').disabled = true;
-
             peer = new Peer();
 
-            peer.on('open', (id) => {
+            peer.on('open', () => {
                 hostConnection = peer.connect(prefix + code);
-                
                 hostConnection.on('open', () => {
                     hostConnection.send({ type: 'join', name: nick });
                     document.getElementById('display-room-code').innerText = code;
                     document.getElementById('waiting-host-msg').style.display = 'block';
                     showScreen('lobby-screen');
                 });
-
                 hostConnection.on('data', (data) => {
-                    if (data.type === 'update_lobby') {
-                        state.players = data.players;
-                        updateLobbyUI();
-                    }
+                    if (data.type === 'update_lobby') { state.players = data.players; updateLobbyUI(); }
                     if (data.type === 'start_game') {
-                        // Rolleri al
-                        const myData = data.roles.find(r => r.id === peer.id);
-                        state.myRole = myData.role;
-                        
+                        state.gameData = data.gameData; // Şifreleri al
+                        state.myRole = data.roles.find(r => r.id === peer.id).role;
                         document.getElementById('reveal-role').innerText = state.myRole;
-                        document.getElementById('reveal-desc').innerText = state.myRole === "KATİP" ? "Kılavuz sende. Şifreyi çöz." : "Panel sende. Söyleneni yap.";
                         showScreen('role-reveal-screen');
                     }
-                    if (data.type === 'start_timer') {
-                        startGameScreen();
-                    }
+                    if (data.type === 'start_timer') { startGameScreen(); }
+                    if (data.type === 'emergency') { triggerLocalEmergency(data.usesLeft); }
                 });
-
-                hostConnection.on('error', (err) => { alert("Host bulunamadı!"); location.reload(); });
             });
         }
 
-        // --- ORTAK UI İŞLEMLERİ ---
+        function broadcast(data) { connections.forEach(c => { if(c.open) c.send(data); }); }
+        
         function updateLobbyUI() {
             const list = document.getElementById('lobby-players');
             list.innerHTML = '';
             state.players.forEach((p, i) => {
-                const isMe = p.name === state.name ? " (Sen)" : "";
-                const isHostStr = i === 0 ? " [Kurucu]" : "";
-                list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name}${isMe}${isHostStr}</span> <span class="status-ready">Bağlandı</span></div>`;
+                list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name} ${i===0?'[Kurucu]':''}</span> <span class="status-ready">Bağlandı</span></div>`;
             });
         }
 
+        // --- OYUN KURGU MANTIĞI ---
+        function generatePuzzles() {
+            let puzzles = [];
+            for(let i=0; i<10; i++) {
+                // 4 rastgele duvar rünü
+                let w = [];
+                while(w.length < 4) {
+                    let r = wallSymbols[Math.floor(Math.random() * wallSymbols.length)];
+                    if(!w.includes(r)) w.push(r);
+                }
+                // 4 rastgele tuş takımı sembolü (çözüm)
+                let s = [];
+                while(s.length < 4) {
+                    let k = keypadSymbols[Math.floor(Math.random() * keypadSymbols.length)];
+                    if(!s.includes(k)) s.push(k);
+                }
+                puzzles.push({ motif: w, solution: s });
+            }
+            return { puzzles: puzzles, activeIndex: Math.floor(Math.random() * 10) };
+        }
+
         function hostStartGame() {
-            if (state.players.length < 2) return alert("En az 2 kişi olmalısınız!");
+            if (state.players.length < 2) return alert("En az 2 kişi lazım!");
+            state.gameData = generatePuzzles(); // Şifreleri oluştur
             
-            // Rastgele rol dağıt (Şimdilik ilk 2 kişi için)
-            const roles = ["KATİP", "SAHA ELEMANI"];
-            Math.random() > 0.5 ? roles.reverse() : null;
-
-            const assignedRoles = [
-                { id: state.players[0].id, role: roles[0] },
-                { id: state.players[1].id, role: roles[1] }
-            ];
-
-            state.myRole = roles[0]; // Host'un rolü
+            const roles = Math.random() > 0.5 ? ["KATİP", "SAHA ELEMANI"] : ["SAHA ELEMANI", "KATİP"];
+            const assigned = [ { id: state.players[0].id, role: roles[0] }, { id: state.players[1].id, role: roles[1] } ];
+            state.myRole = roles[0];
             
-            // Clientlara yolla
-            broadcast({ type: 'start_game', roles: assignedRoles });
-
-            // Host'un ekranını güncelle
+            broadcast({ type: 'start_game', roles: assigned, gameData: state.gameData });
+            
             document.getElementById('reveal-role').innerText = state.myRole;
-            document.getElementById('reveal-desc').innerText = state.myRole === "KATİP" ? "Kılavuz sende. Şifreyi çöz." : "Panel sende. Söyleneni yap.";
             showScreen('role-reveal-screen');
         }
 
         function playerReady() {
             document.getElementById('ready-btn').style.display = 'none';
-            document.getElementById('ready-status').style.display = 'block';
-
-            if (state.isHost) {
-                state.players[0].ready = true;
-                checkAllReady();
-            } else {
-                hostConnection.send({ type: 'ready' });
-            }
+            if (state.isHost) { state.players[0].ready = true; checkAllReady(); }
+            else { hostConnection.send({ type: 'ready' }); }
         }
 
         function checkAllReady() {
             if (!state.isHost) return;
-            const allReady = state.players.every(p => p.ready === true);
-            if (allReady) {
-                broadcast({ type: 'start_timer' });
-                startGameScreen();
+            if (state.players.every(p => p.ready === true)) {
+                broadcast({ type: 'start_timer' }); startGameScreen();
             }
         }
 
@@ -309,33 +309,106 @@
             
             if (state.myRole === "SAHA ELEMANI") {
                 document.getElementById('panel-saha').style.display = 'flex';
+                // Aktif motifi ekrana bas
+                const activePuzzle = state.gameData.puzzles[state.gameData.activeIndex];
+                document.getElementById('saha-wall-motif').innerText = `[ ${activePuzzle.motif.join(' ')} ]`;
                 generateKeypad();
             } else {
                 document.getElementById('panel-katip').style.display = 'flex';
+                state.katipCurrentPage = 0;
+                renderKatipPage();
             }
             
             showScreen('game-screen');
             startTimer();
         }
 
+        // --- SAHA ELEMANI MANTIĞI ---
         function generateKeypad() {
             const keypad = document.getElementById('keypad');
             let html = "";
             for(let i = 0; i < 20; i++) {
-                html += `<button class="key-btn" onclick="this.style.background='#00ffcc'; this.style.color='#000';">${symbols[i]}</button>`;
+                html += `<button class="key-btn" onclick="pressKey(this, '${keypadSymbols[i]}')">${keypadSymbols[i]}</button>`;
             }
             keypad.innerHTML = html;
         }
 
+        function pressKey(btnElement, symbolClicked) {
+            // Zaten doğru basılmışsa işlem yapma
+            if(btnElement.classList.contains('correct')) return;
+
+            const activePuzzle = state.gameData.puzzles[state.gameData.activeIndex];
+            const isCorrect = activePuzzle.solution.includes(symbolClicked);
+
+            if(isCorrect) {
+                // Doğru tuş: Kalıcı yeşil yap
+                btnElement.classList.add('correct');
+            } else {
+                // Yanlış tuş: Kırmızı yanıp sönme efekti
+                btnElement.classList.add('error');
+                setTimeout(() => { btnElement.classList.remove('error'); }, 400);
+            }
+        }
+
+        // --- KATİP MANTIĞI ---
+        function renderKatipPage() {
+            const p = state.gameData.puzzles[state.katipCurrentPage];
+            document.getElementById('katip-wall-motif').innerText = `[ ${p.motif.join(' ')} ]`;
+            document.getElementById('katip-solution').innerText = p.solution.join(', ');
+            document.getElementById('katip-page-text').innerText = `Sayfa ${state.katipCurrentPage + 1} / 10`;
+        }
+
+        function changePage(dir) {
+            let newPage = state.katipCurrentPage + dir;
+            if(newPage >= 0 && newPage < 10) {
+                state.katipCurrentPage = newPage;
+                renderKatipPage();
+            }
+        }
+
+        // --- ACİL DURUM VE SAYAÇ ---
+        let gameTimer;
         let timeLeft = 90;
+        
         function startTimer() {
-            setInterval(() => {
+            gameTimer = setInterval(() => {
                 timeLeft--;
                 let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 let s = (timeLeft % 60).toString().padStart(2, '0');
                 document.getElementById('timer').innerText = `${m}:${s}`;
-                if(timeLeft <= 0) { document.getElementById('timer').innerText = "PATLADI!"; }
+                if(timeLeft <= 0) { clearInterval(gameTimer); document.getElementById('timer').innerText = "PATLADI!"; }
             }, 1000);
+        }
+
+        function triggerEmergency() {
+            if(state.emergencyUses <= 0) return;
+            state.emergencyUses--;
+            document.getElementById('em-count').innerText = state.emergencyUses;
+            
+            // Ağ üzerinden diğer oyuncuya da sinyal gönder
+            if(state.isHost) { broadcast({ type: 'emergency', usesLeft: state.emergencyUses }); }
+            else { hostConnection.send({ type: 'emergency', usesLeft: state.emergencyUses }); }
+            
+            triggerLocalEmergency(state.emergencyUses);
+        }
+
+        function triggerLocalEmergency(usesLeft) {
+            clearInterval(gameTimer); // Zamanı durdur
+            state.emergencyUses = usesLeft;
+            document.getElementById('em-count').innerText = state.emergencyUses;
+            
+            const modalDesc = document.getElementById('em-modal-desc');
+            if(usesLeft === 1) {
+                modalDesc.innerText = "Sadece tartışma aşaması. Birini asamazsınız.";
+            } else {
+                modalDesc.innerText = "Kritik karar! Oylama zamanı. (Oylama arayüzü eklenecek)";
+            }
+            document.getElementById('emergency-modal').style.display = 'flex';
+        }
+
+        function closeEmergency() {
+            document.getElementById('emergency-modal').style.display = 'none';
+            startTimer(); // Zamanı tekrar başlat
         }
     </script>
 </body>

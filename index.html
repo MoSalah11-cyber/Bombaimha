@@ -39,28 +39,30 @@
         .header-info span { color: #fff; font-weight: bold; }
         #timer { font-size: 2.5rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; }
         
-        /* Acil Durum Butonu */
-        .emergency-btn { background: #ff0033; border: 2px solid #fff; border-radius: 5px; color: white; padding: 5px 15px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 1rem; box-shadow: 0 0 10px #ff0033; margin: 0; }
-        .emergency-btn:hover { background: #cc0000; }
+        /* Yeni Camekanlı Acil Durum Butonu */
+        .emergency-container { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .emergency-btn { background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%; color: white; width: 50px; height: 50px; font-weight: bold; cursor: pointer; box-shadow: inset 0 4px 6px rgba(255, 255, 255, 0.6), inset 0 -4px 6px rgba(0, 0, 0, 0.4), 0 0 15px #ff0033; position: relative; display: flex; align-items: center; justify-content: center; transition: 0.1s; padding: 0; margin: 0; }
+        .emergency-btn::before { content: ''; position: absolute; top: 3px; left: 15%; width: 70%; height: 35%; background: rgba(255, 255, 255, 0.5); border-radius: 50px 50px 0 0; }
+        .emergency-btn:active { transform: scale(0.92); box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.6), 0 0 5px #ff0033; }
+        .emergency-btn span { position: relative; z-index: 2; font-size: 1.3rem; text-shadow: 1px 1px 2px #000; }
+        .emergency-label { font-size: 0.7rem; color: #ff3366; text-transform: uppercase; font-weight: bold; text-shadow: 0 0 5px #ff3366; letter-spacing: 1px; }
 
         .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); align-items: center; justify-content: center; }
         .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 700px; width: 100%; position: relative; }
         
-        /* Saha Elemanı - Duvar Şeridi */
         .wall-strip { width: 100%; background: #050505; border: 1px solid #444; border-radius: 5px; padding: 15px; text-align: center; margin-bottom: 25px; box-shadow: inset 0 0 15px #000; }
         .wall-strip-title { font-size: 0.9rem; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; }
         .wall-symbols { font-size: 2.5rem; color: #a89f91; letter-spacing: 15px; font-family: serif; text-shadow: 0 0 5px rgba(168, 159, 145, 0.5); }
 
-        .keypad-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
-        .key-btn { background: #151515; border: 2px solid #333; color: #fff; padding: 20px; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.1s; }
+        /* Hizalanmış Tuş Takımı */
+        .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+        .key-btn { background: #151515; border: 2px solid #333; color: #fff; padding: 15px 0; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.1s; display: flex; align-items: center; justify-content: center; width: 100%; }
         .key-btn:hover { border-color: #00ffcc; }
         .key-btn.correct { background: #00ffcc !important; color: #000 !important; border-color: #00ffcc !important; box-shadow: 0 0 15px #00ffcc; }
         
-        /* Yanlış Tuş Efekti */
         @keyframes errorFlash { 0% { background: #ff0033; border-color: #ff0033; transform: scale(0.95); } 100% { background: #151515; border-color: #333; transform: scale(1); } }
         .key-btn.error { animation: errorFlash 0.4s ease-out; }
 
-        /* Katip - Kılavuz Kitabı */
         .book-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
         .pattern-box { background: #0a0a0f; border: 2px dashed #444; padding: 30px; border-radius: 10px; font-size: 3.5rem; margin-bottom: 20px; text-align: center; width: 80%; color: #a89f91; font-family: serif; letter-spacing: 10px; }
         .solution-box { margin-top: 10px; text-align: center; }
@@ -71,14 +73,22 @@
         .page-btn:hover { background: #555; }
         .page-indicator { font-size: 1.2rem; color: #888; font-family: 'Share Tech Mono', monospace; }
 
-        /* Modal */
         #emergency-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
         .modal-content { background: #111; border: 2px solid #ff0033; padding: 40px; border-radius: 10px; text-align: center; box-shadow: 0 0 30px rgba(255,0,51,0.5); }
+
+        /* Mobil Uyum */
+        @media (max-width: 600px) {
+            .game-panel { padding: 15px; }
+            .keypad-grid { gap: 8px; }
+            .key-btn { padding: 12px 0; font-size: 1.5rem; }
+            .wall-symbols { font-size: 2rem; letter-spacing: 10px; }
+            h1 { font-size: 2.2rem; }
+            #game-header { padding: 10px 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. GİRİŞ EKRANI -->
     <div id="login-screen" class="screen active">
         <h1 class="glow-text">KAOS PROTOKOLÜ</h1>
         <div class="input-group"><input type="text" id="nickname" placeholder="Ajan Adınızı Girin" autocomplete="off"></div>
@@ -87,7 +97,6 @@
         <button id="btn-join" onclick="joinRoom()" style="background: linear-gradient(45deg, #333, #555);">Odaya Katıl</button>
     </div>
 
-    <!-- 2. LOBİ EKRANI -->
     <div id="lobby-screen" class="screen">
         <h2 class="glow-text">BEKLEME LOBİSİ</h2>
         <p style="font-size: 1.2rem; margin-bottom: 20px;">Bağlantı Kodu: <strong class="alert-text" id="display-room-code" style="font-size: 2.5rem; letter-spacing: 5px;"></strong></p>
@@ -96,7 +105,6 @@
         <p id="waiting-host-msg" class="status-waiting" style="display: none;">Kurucunun oyunu başlatması bekleniyor...</p>
     </div>
 
-    <!-- 3. ROL EKRANI -->
     <div id="role-reveal-screen" class="screen">
         <h2 style="color: #aaa;">GÖREV DAĞILIMI</h2>
         <div class="role-card">
@@ -106,18 +114,21 @@
         <button id="ready-btn" onclick="playerReady()">Göreve Hazırım</button>
     </div>
 
-    <!-- 4. OYUN EKRANI -->
     <div id="game-screen" class="screen">
         <div id="game-header">
             <div class="header-info"><div>ROL: <span id="game-role-display"></span></div></div>
             <div id="timer" class="alert-text">01:30</div>
             <div class="header-info">
-                <button class="emergency-btn" onclick="triggerEmergency()">Acil Durum (<span id="em-count">2</span>)</button>
+                <div class="emergency-container">
+                    <button class="emergency-btn" onclick="triggerEmergency()">
+                        <span id="em-count">2</span>
+                    </button>
+                    <span class="emergency-label">Acil Durum</span>
+                </div>
             </div>
         </div>
 
         <div class="game-container">
-            <!-- Saha Elemanı Paneli -->
             <div class="game-panel" id="panel-saha" style="display:none;">
                 <div class="wall-strip">
                     <div class="wall-strip-title">Duvardaki Antik Motif</div>
@@ -126,7 +137,6 @@
                 <div class="keypad-grid" id="keypad"></div>
             </div>
             
-            <!-- Katip Paneli -->
             <div class="game-panel" id="panel-katip" style="display:none;">
                 <h2 style="color: #888; margin-bottom: 30px;">KILAVUZ KİTABI</h2>
                 <div class="book-container">
@@ -148,7 +158,6 @@
         </div>
     </div>
 
-    <!-- Acil Durum Modalı -->
     <div id="emergency-modal">
         <div class="modal-content">
             <h1 style="color: #ff3366; font-size: 3rem; margin-bottom: 10px;">ACİL DURUM TOPLANTISI</h1>
@@ -170,9 +179,7 @@
         };
 
         const prefix = "kaos-game-"; 
-        // Tuş takımı sembolleri
         const keypadSymbols = ["∇","∆","◬","◮","◯","◎","●","◐","◑","▱","▰","▣","◈","◉","◧","◨","◩","◪","◫","◭"];
-        // Duvar motifleri (Antik Rünler)
         const wallSymbols = ["ᚠ","ᚢ","ᚦ","ᚨ","ᚱ","ᚲ","ᚷ","ᚹ","ᚺ","ᚾ","ᛁ","ᛃ","ᛇ","ᛈ","ᛉ","ᛊ","ᛏ","ᛒ","ᛖ","ᛗ"];
 
         function showScreen(id) {
@@ -180,7 +187,6 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // --- NETWORK MANTIĞI ---
         function createRoom() {
             const nick = document.getElementById('nickname').value.trim();
             if(!nick) return;
@@ -235,7 +241,7 @@
                 hostConnection.on('data', (data) => {
                     if (data.type === 'update_lobby') { state.players = data.players; updateLobbyUI(); }
                     if (data.type === 'start_game') {
-                        state.gameData = data.gameData; // Şifreleri al
+                        state.gameData = data.gameData;
                         state.myRole = data.roles.find(r => r.id === peer.id).role;
                         document.getElementById('reveal-role').innerText = state.myRole;
                         showScreen('role-reveal-screen');
@@ -256,17 +262,14 @@
             });
         }
 
-        // --- OYUN KURGU MANTIĞI ---
         function generatePuzzles() {
             let puzzles = [];
             for(let i=0; i<10; i++) {
-                // 4 rastgele duvar rünü
                 let w = [];
                 while(w.length < 4) {
                     let r = wallSymbols[Math.floor(Math.random() * wallSymbols.length)];
                     if(!w.includes(r)) w.push(r);
                 }
-                // 4 rastgele tuş takımı sembolü (çözüm)
                 let s = [];
                 while(s.length < 4) {
                     let k = keypadSymbols[Math.floor(Math.random() * keypadSymbols.length)];
@@ -279,7 +282,7 @@
 
         function hostStartGame() {
             if (state.players.length < 2) return alert("En az 2 kişi lazım!");
-            state.gameData = generatePuzzles(); // Şifreleri oluştur
+            state.gameData = generatePuzzles();
             
             const roles = Math.random() > 0.5 ? ["KATİP", "SAHA ELEMANI"] : ["SAHA ELEMANI", "KATİP"];
             const assigned = [ { id: state.players[0].id, role: roles[0] }, { id: state.players[1].id, role: roles[1] } ];
@@ -309,7 +312,6 @@
             
             if (state.myRole === "SAHA ELEMANI") {
                 document.getElementById('panel-saha').style.display = 'flex';
-                // Aktif motifi ekrana bas
                 const activePuzzle = state.gameData.puzzles[state.gameData.activeIndex];
                 document.getElementById('saha-wall-motif').innerText = `[ ${activePuzzle.motif.join(' ')} ]`;
                 generateKeypad();
@@ -323,7 +325,6 @@
             startTimer();
         }
 
-        // --- SAHA ELEMANI MANTIĞI ---
         function generateKeypad() {
             const keypad = document.getElementById('keypad');
             let html = "";
@@ -334,23 +335,18 @@
         }
 
         function pressKey(btnElement, symbolClicked) {
-            // Zaten doğru basılmışsa işlem yapma
             if(btnElement.classList.contains('correct')) return;
-
             const activePuzzle = state.gameData.puzzles[state.gameData.activeIndex];
             const isCorrect = activePuzzle.solution.includes(symbolClicked);
 
             if(isCorrect) {
-                // Doğru tuş: Kalıcı yeşil yap
                 btnElement.classList.add('correct');
             } else {
-                // Yanlış tuş: Kırmızı yanıp sönme efekti
                 btnElement.classList.add('error');
                 setTimeout(() => { btnElement.classList.remove('error'); }, 400);
             }
         }
 
-        // --- KATİP MANTIĞI ---
         function renderKatipPage() {
             const p = state.gameData.puzzles[state.katipCurrentPage];
             document.getElementById('katip-wall-motif').innerText = `[ ${p.motif.join(' ')} ]`;
@@ -366,7 +362,6 @@
             }
         }
 
-        // --- ACİL DURUM VE SAYAÇ ---
         let gameTimer;
         let timeLeft = 90;
         
@@ -385,7 +380,6 @@
             state.emergencyUses--;
             document.getElementById('em-count').innerText = state.emergencyUses;
             
-            // Ağ üzerinden diğer oyuncuya da sinyal gönder
             if(state.isHost) { broadcast({ type: 'emergency', usesLeft: state.emergencyUses }); }
             else { hostConnection.send({ type: 'emergency', usesLeft: state.emergencyUses }); }
             
@@ -393,7 +387,7 @@
         }
 
         function triggerLocalEmergency(usesLeft) {
-            clearInterval(gameTimer); // Zamanı durdur
+            clearInterval(gameTimer);
             state.emergencyUses = usesLeft;
             document.getElementById('em-count').innerText = state.emergencyUses;
             
@@ -408,7 +402,7 @@
 
         function closeEmergency() {
             document.getElementById('emergency-modal').style.display = 'none';
-            startTimer(); // Zamanı tekrar başlat
+            startTimer();
         }
     </script>
 </body>

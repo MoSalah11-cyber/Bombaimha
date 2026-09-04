@@ -3,321 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaos Protokolü</title>
+    <title>Kaos Protokolü - Gerçek Multiplayer</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- PeerJS Kütüphanesi (Bağlantı için) -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%);
-            color: #e0e0e0; 
-            font-family: 'Rajdhani', sans-serif; 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column;
-        }
-
-        /* Neon & Cyberpunk Etkileri */
+        body { background: radial-gradient(circle at center, #1a1a24 0%, #0d0d12 100%); color: #e0e0e0; font-family: 'Rajdhani', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         .glow-text { text-shadow: 0 0 10px rgba(0, 255, 204, 0.7); color: #00ffcc; }
         .alert-text { text-shadow: 0 0 10px rgba(255, 51, 102, 0.8); color: #ff3366; }
-        
-        .screen { 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100%; 
-            width: 100%; 
-            padding: 20px; 
-            animation: fadeIn 0.5s ease-in-out;
-        }
+        .screen { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; padding: 20px; animation: fadeIn 0.5s ease-in-out; }
         .active { display: flex; }
-
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-
-        h1 { font-size: 3rem; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; }
+        h1 { font-size: 3rem; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
         h2 { font-size: 2rem; margin-bottom: 15px; }
-
         .input-group { position: relative; margin: 15px 0; }
-        input { 
-            background: rgba(0, 0, 0, 0.5); 
-            border: 1px solid #00ffcc; 
-            color: #fff; 
-            padding: 15px 20px; 
-            font-size: 1.2rem; 
-            font-family: 'Share Tech Mono', monospace;
-            border-radius: 5px;
-            width: 300px;
-            text-align: center;
-            transition: all 0.3s;
-        }
+        input { background: rgba(0, 0, 0, 0.5); border: 1px solid #00ffcc; color: #fff; padding: 15px 20px; font-size: 1.2rem; font-family: 'Share Tech Mono', monospace; border-radius: 5px; width: 300px; text-align: center; transition: all 0.3s; }
         input:focus { outline: none; box-shadow: 0 0 15px rgba(0, 255, 204, 0.5); background: rgba(0, 255, 204, 0.1); }
-
-        button { 
-            background: linear-gradient(45deg, #004d40, #009688); 
-            border: none; 
-            color: #fff; 
-            padding: 15px 30px; 
-            font-size: 1.2rem; 
-            font-weight: 700;
-            border-radius: 5px;
-            cursor: pointer; 
-            transition: 0.3s; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(0, 150, 136, 0.4);
-            margin-top: 10px;
-        }
+        button { background: linear-gradient(45deg, #004d40, #009688); border: none; color: #fff; padding: 15px 30px; font-size: 1.2rem; font-weight: 700; border-radius: 5px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0, 150, 136, 0.4); margin-top: 10px; }
         button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.6); }
+        button:disabled { filter: grayscale(100%); cursor: not-allowed; }
         button.danger { background: linear-gradient(45deg, #880000, #ff3366); box-shadow: 0 4px 15px rgba(255, 51, 102, 0.4); }
         button.danger:hover { box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6); }
-
-        /* Lobi Tasarımı */
-        .player-list { 
-            background: rgba(0, 0, 0, 0.6); 
-            border: 1px solid #333; 
-            border-radius: 10px; 
-            padding: 20px; 
-            width: 350px; 
-            margin: 20px 0;
-        }
-        .player-slot { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 10px; 
-            border-bottom: 1px solid #222; 
-            font-size: 1.2rem;
-            font-family: 'Share Tech Mono', monospace;
-        }
+        .player-list { background: rgba(0, 0, 0, 0.6); border: 1px solid #333; border-radius: 10px; padding: 20px; width: 350px; margin: 20px 0; }
+        .player-slot { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 1.2rem; font-family: 'Share Tech Mono', monospace; }
         .player-slot:last-child { border-bottom: none; }
         .status-ready { color: #00ffcc; }
         .status-waiting { color: #ff9900; animation: pulse 1.5s infinite; }
-
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
-        /* Rol Gösterim Ekranı */
-        #role-reveal-screen { text-align: center; }
-        .role-card {
-            background: rgba(0, 255, 204, 0.05);
-            border: 2px solid #00ffcc;
-            border-radius: 15px;
-            padding: 40px;
-            margin: 20px 0;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2) inset;
-        }
+        .role-card { background: rgba(0, 255, 204, 0.05); border: 2px solid #00ffcc; border-radius: 15px; padding: 40px; margin: 20px 0; text-align: center; box-shadow: 0 0 30px rgba(0, 255, 204, 0.2) inset; }
         .role-title { font-size: 2.5rem; color: #fff; margin-bottom: 10px; }
-        .team-info { font-size: 1.5rem; color: #aaa; margin-bottom: 30px; font-family: 'Share Tech Mono', monospace; }
-        
-        /* Oyun Arayüzü */
-        #game-header { 
-            position: absolute; 
-            top: 0; left: 0; width: 100%; 
-            padding: 15px 30px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: rgba(0, 0, 0, 0.8); 
-            border-bottom: 1px solid #333;
-            backdrop-filter: blur(5px);
-        }
+        #game-header { position: absolute; top: 0; left: 0; width: 100%; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid #333; backdrop-filter: blur(5px); }
         .header-info { display: flex; gap: 20px; font-size: 1.2rem; color: #aaa; }
         .header-info span { color: #fff; font-weight: bold; }
         #timer { font-size: 2.5rem; font-family: 'Share Tech Mono', monospace; font-weight: bold; }
-        
-        .game-container {
-            display: flex;
-            gap: 30px;
-            width: 90%;
-            max-width: 1200px;
-            margin-top: 80px;
-            height: calc(100% - 120px);
-        }
-
-        .game-panel {
-            flex: 1;
-            background: rgba(20, 20, 30, 0.8);
-            border: 1px solid #444;
-            border-radius: 15px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .panel-header { font-size: 1.5rem; margin-bottom: 20px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-
-        .pattern-box {
-            background: #000;
-            border: 2px dashed #555;
-            padding: 40px;
-            border-radius: 10px;
-            font-size: 4rem;
-            margin-bottom: 20px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .keypad-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            width: 100%;
-        }
-        .key-btn {
-            background: #222;
-            border: 1px solid #555;
-            color: #fff;
-            padding: 20px;
-            font-size: 1.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .game-container { display: flex; gap: 30px; width: 90%; max-width: 1200px; margin-top: 80px; height: calc(100% - 120px); }
+        .game-panel { flex: 1; background: rgba(20, 20, 30, 0.8); border: 1px solid #444; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .pattern-box { background: #000; border: 2px dashed #555; padding: 40px; border-radius: 10px; font-size: 4rem; margin-bottom: 20px; text-align: center; width: 100%; }
+        .keypad-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; }
+        .key-btn { background: #222; border: 1px solid #555; color: #fff; padding: 20px; font-size: 1.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .key-btn:hover { background: #333; border-color: #00ffcc; }
-        .key-btn:active { background: #00ffcc; color: #000; }
-
-        #emergency-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #ff3366, #990000);
-            border: 4px solid #222;
-            color: #fff;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        #emergency-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 51, 102, 0.8); }
-        #emergency-btn:active { transform: scale(0.95); }
-
+        #notification { position: fixed; top: 20px; background: rgba(0,0,0,0.8); border: 1px solid #ff3366; padding: 15px; border-radius: 5px; color: #fff; z-index: 1000; display: none; }
     </style>
 </head>
 <body>
 
+    <div id="notification"></div>
+
     <!-- 1. GİRİŞ EKRANI -->
     <div id="login-screen" class="screen active">
         <h1 class="glow-text">KAOS PROTOKOLÜ</h1>
-        <p style="color: #aaa; margin-bottom: 30px;">Taktiksel İmha ve İhanet Simülasyonu</p>
+        <p style="color: #aaa; margin-bottom: 30px;">Bağlantı Kuruluyor...</p>
         
         <div class="input-group">
             <input type="text" id="nickname" placeholder="Ajan Adınızı Girin" autocomplete="off">
         </div>
         
         <div style="display: flex; gap: 15px; margin-top: 20px;">
-            <button onclick="createRoom()">Oda Kur</button>
+            <button id="btn-create" onclick="createRoom()">Oda Kur</button>
         </div>
         
         <div class="input-group" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 30px;">
             <input type="text" id="room-code-input" placeholder="Oda Kodunu Girin" maxlength="6" style="text-transform: uppercase;">
         </div>
-        <button onclick="joinRoom()" style="background: linear-gradient(45deg, #333, #555);">Odaya Katıl</button>
+        <button id="btn-join" onclick="joinRoom()" style="background: linear-gradient(45deg, #333, #555);">Odaya Katıl</button>
     </div>
 
     <!-- 2. LOBİ EKRANI -->
     <div id="lobby-screen" class="screen">
         <h2 class="glow-text">BEKLEME LOBİSİ</h2>
-        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bağlantı Kodu: <strong class="alert-text" id="display-room-code" style="font-size: 2rem; letter-spacing: 5px;"></strong></p>
+        <p style="font-size: 1.2rem; margin-bottom: 20px;">Bağlantı Kodu: <strong class="alert-text" id="display-room-code" style="font-size: 2.5rem; letter-spacing: 5px; cursor: pointer;" title="Kopyalamak için tıkla"></strong></p>
         
         <div class="player-list" id="lobby-players">
-            <!-- JS ile dolacak -->
+            <!-- Oyuncular buraya eklenecek -->
         </div>
         
-        <p style="color: #666; font-size: 0.9rem; margin-bottom: 20px; max-width: 400px; text-align: center;">
-            (Not: GitHub Pages üzerinde gerçek multiplayer için arkaya Firebase bağlaman gerekir. Şu an arayüz akışını simüle ediyoruz, takım dağılımını görebilirsin.)
-        </p>
-
-        <button id="start-game-btn" onclick="startRoleReveal()" class="danger" style="display: none;">Protokolü Başlat</button>
+        <button id="start-game-btn" onclick="hostStartGame()" class="danger" style="display: none;">Protokolü Başlat</button>
         <p id="waiting-host-msg" class="status-waiting" style="display: none;">Kurucunun oyunu başlatması bekleniyor...</p>
     </div>
 
-    <!-- 3. ROL GÖSTERİM EKRANI -->
+    <!-- 3. ROL EKRANI -->
     <div id="role-reveal-screen" class="screen">
-        <h2 style="color: #aaa;">GÖREV DAĞILIMI TAMAMLANDI</h2>
-        
+        <h2 style="color: #aaa;">GÖREV DAĞILIMI</h2>
         <div class="role-card">
-            <div class="team-info">TAKIM: <span class="glow-text" id="reveal-team">ALPHA (A & B)</span></div>
             <div style="font-size: 1.2rem; color: #888; margin-bottom: 10px;">Atanan Rolünüz:</div>
-            <div class="role-title glow-text" id="reveal-role">SAHA ELEMANI</div>
-            <p style="color: #ccc; margin-top: 20px; font-size: 1.1rem; max-width: 400px; margin-left: auto; margin-right: auto;" id="reveal-desc">
-                Paneli sen kontrol ediyorsun. Duvardaki sembolleri partnerine (Katip) tarif et, onun söylediği tuşlara bas.
-            </p>
+            <div class="role-title glow-text" id="reveal-role">YÜKLENİYOR...</div>
+            <p style="color: #ccc; margin-top: 20px; font-size: 1.1rem;" id="reveal-desc"></p>
         </div>
-
         <button id="ready-btn" onclick="playerReady()">Göreve Hazırım</button>
-        <p id="ready-status" class="status-waiting" style="margin-top: 20px; display: none;">Diğer ajanların onayı bekleniyor...</p>
+        <p id="ready-status" class="status-waiting" style="margin-top: 20px; display: none;">Diğer ajan bekleniyor...</p>
     </div>
 
     <!-- 4. OYUN EKRANI -->
     <div id="game-screen" class="screen">
         <div id="game-header">
-            <div class="header-info">
-                <div>TAKIM: <span id="game-team-display">ALPHA</span></div>
-                <div>ROL: <span id="game-role-display">SAHA ELEMANI</span></div>
-            </div>
+            <div class="header-info"><div>ROL: <span id="game-role-display"></span></div></div>
             <div id="timer" class="alert-text">01:30</div>
-            <div class="header-info">
-                <div>PARTNER: <span id="game-partner-display" class="glow-text">BEKLENİYOR</span></div>
-            </div>
+            <div class="header-info"><div>BAĞLANTI: <span class="glow-text">GÜVENLİ</span></div></div>
         </div>
 
         <div class="game-container">
-            <!-- BİLGİ PANELİ (Saha için Duvar / Katip için Kitap) -->
-            <div class="game-panel">
-                <div class="panel-header" id="left-panel-title">DUVARDAKİ DESEN</div>
-                <div class="pattern-box" id="pattern-display">
-                    [ ◬ ◯ ▱ ◮ ]
-                </div>
-                <p style="color: #aaa; text-align: center; font-size: 1.2rem; margin-top: auto;" id="left-panel-desc">
-                    Deseni partnerine eksiksiz tarif et. Yanlış bilgi imhayı hızlandırır.
-                </p>
+            <div class="game-panel" id="panel-saha" style="display:none; width: 100%;">
+                <h2 style="color: #888;">İMHA MODÜLÜ</h2>
+                <div class="keypad-grid" id="keypad"></div>
             </div>
-
-            <!-- AKSİYON PANELİ (Saha için Tuşlar / Katip için Doğrulama) -->
-            <div class="game-panel">
-                <div class="panel-header" id="right-panel-title">İMHA MODÜLÜ</div>
-                <div class="keypad-grid" id="keypad">
-                    <!-- JS ile dolacak -->
-                </div>
-                <div id="scribe-view" style="display: none; text-align: center; width: 100%;">
-                    <h3 style="color: #00ffcc; margin-bottom: 20px;">Duvarda "[ ◬ ◯ ▱ ◮ ]" deseni varsa:</h3>
-                    <p style="font-size: 1.5rem;">Basılacak Tuşlar: <strong style="color: #ff3366;">∇, ◎, ▣, ◪</strong></p>
-                    <p style="color: #666; margin-top: 40px;">Saha elemanına bunları ilet.</p>
-                </div>
+            
+            <div class="game-panel" id="panel-katip" style="display:none; width: 100%;">
+                <h2 style="color: #888;">KILAVUZ KİTABI</h2>
+                <div class="pattern-box">[ ◬ ◯ ▱ ◮ ]</div>
+                <p style="font-size: 1.5rem; text-align: center;">Basılacak Tuşlar:<br><strong style="color: #ff3366; font-size: 2rem;">∇, ◎, ▣, ◪</strong></p>
+                <p style="color: #666; margin-top: 20px; text-align: center;">Saha elemanına bunları ilet.</p>
             </div>
         </div>
-
-        <button id="emergency-btn" onclick="triggerEmergency()">
-            <span>ACİL DURUM</span>
-            <span style="font-size: 0.9rem; margin-top: 5px; color: #ff9999;" id="btn-charges">(2 HAK)</span>
-        </button>
     </div>
 
-    <!-- JS MANTIK -->
     <script>
-        // DURUM YÖNETİMİ
+        let peer = null;
+        let connections = []; // Host için bağlananlar
+        let hostConnection = null; // Client için host bağlantısı
+        
         let state = {
-            playerName: '',
+            name: '',
             isHost: false,
-            roomCode: '',
-            players: [],
-            role: '',
-            team: '',
-            partner: ''
+            players: [], // {id, name, ready}
+            myRole: ''
         };
 
+        const prefix = "kaos-game-"; 
         const symbols = ["∇","∆","◬","◮","◯","◎","●","◐","◑","▱","▰","▣","◈","◉","◧","◨","◩","◪","◫","◭"];
 
         function showScreen(id) {
@@ -325,131 +137,183 @@
             document.getElementById(id).classList.add('active');
         }
 
+        function showNotify(msg) {
+            const notif = document.getElementById('notification');
+            notif.innerText = msg;
+            notif.style.display = 'block';
+            setTimeout(() => { notif.style.display = 'none'; }, 3000);
+        }
+
+        // --- HOST İŞLEMLERİ ---
         function createRoom() {
             const nick = document.getElementById('nickname').value.trim();
-            if(!nick) return alert("Ajan adı girmelisin!");
+            if(!nick) return alert("Adını gir!");
             
-            state.playerName = nick;
+            state.name = nick;
             state.isHost = true;
-            state.roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-            
-            // Simüle edilmiş oyuncu listesi (Gerçekte Firebase'den dinlenecek)
-            state.players = [
-                { name: nick, isHost: true }
-            ];
-            
-            updateLobbyUI();
-            document.getElementById('display-room-code').innerText = state.roomCode;
-            document.getElementById('start-game-btn').style.display = 'block';
-            
-            showScreen('lobby-screen');
-            simulatePlayersJoining();
+            const rawCode = Math.random().toString(36).substring(2, 7).toUpperCase();
+            const roomCode = prefix + rawCode;
+
+            document.getElementById('btn-create').innerText = "Oluşturuluyor...";
+            document.getElementById('btn-create').disabled = true;
+
+            peer = new Peer(roomCode);
+
+            peer.on('open', (id) => {
+                state.players.push({ id: peer.id, name: nick, ready: false });
+                document.getElementById('display-room-code').innerText = rawCode;
+                updateLobbyUI();
+                
+                document.getElementById('start-game-btn').style.display = 'block';
+                showScreen('lobby-screen');
+            });
+
+            peer.on('connection', (conn) => {
+                connections.push(conn);
+                
+                conn.on('data', (data) => {
+                    if (data.type === 'join') {
+                        state.players.push({ id: conn.peer, name: data.name, ready: false });
+                        broadcast({ type: 'update_lobby', players: state.players });
+                        updateLobbyUI();
+                        showNotify(data.name + " odaya katıldı!");
+                    }
+                    if (data.type === 'ready') {
+                        const p = state.players.find(x => x.id === conn.peer);
+                        if(p) p.ready = true;
+                        checkAllReady();
+                    }
+                });
+
+                conn.on('close', () => {
+                    state.players = state.players.filter(p => p.id !== conn.peer);
+                    connections = connections.filter(c => c.peer !== conn.peer);
+                    broadcast({ type: 'update_lobby', players: state.players });
+                    updateLobbyUI();
+                });
+            });
+
+            peer.on('error', (err) => { alert("Bağlantı Hatası: " + err); });
         }
 
+        function broadcast(data) {
+            connections.forEach(c => {
+                if(c.open) c.send(data);
+            });
+        }
+
+        // --- CLIENT İŞLEMLERİ ---
         function joinRoom() {
             const nick = document.getElementById('nickname').value.trim();
-            const code = document.getElementById('room-code-input').value.trim().toUpperCase();
-            if(!nick) return alert("Ajan adı girmelisin!");
-            if(code.length < 5) return alert("Geçerli bir oda kodu gir!");
+            let code = document.getElementById('room-code-input').value.trim().toUpperCase();
+            if(!nick || !code) return alert("Adını ve Oda Kodunu gir!");
 
-            state.playerName = nick;
+            state.name = nick;
             state.isHost = false;
-            state.roomCode = code;
             
-            // Simüle
-            state.players = [
-                { name: "KurucuAjan", isHost: true },
-                { name: nick, isHost: false },
-                { name: "Ghost", isHost: false },
-                { name: "Viper", isHost: false }
-            ];
+            document.getElementById('btn-join').innerText = "Bağlanıyor...";
+            document.getElementById('btn-join').disabled = true;
 
-            updateLobbyUI();
-            document.getElementById('display-room-code').innerText = state.roomCode;
-            document.getElementById('waiting-host-msg').style.display = 'block';
-            
-            showScreen('lobby-screen');
-            
-            // Kurucu oyunu başlattı simülasyonu
-            setTimeout(() => { startRoleReveal(); }, 4000);
+            peer = new Peer();
+
+            peer.on('open', (id) => {
+                hostConnection = peer.connect(prefix + code);
+                
+                hostConnection.on('open', () => {
+                    hostConnection.send({ type: 'join', name: nick });
+                    document.getElementById('display-room-code').innerText = code;
+                    document.getElementById('waiting-host-msg').style.display = 'block';
+                    showScreen('lobby-screen');
+                });
+
+                hostConnection.on('data', (data) => {
+                    if (data.type === 'update_lobby') {
+                        state.players = data.players;
+                        updateLobbyUI();
+                    }
+                    if (data.type === 'start_game') {
+                        // Rolleri al
+                        const myData = data.roles.find(r => r.id === peer.id);
+                        state.myRole = myData.role;
+                        
+                        document.getElementById('reveal-role').innerText = state.myRole;
+                        document.getElementById('reveal-desc').innerText = state.myRole === "KATİP" ? "Kılavuz sende. Şifreyi çöz." : "Panel sende. Söyleneni yap.";
+                        showScreen('role-reveal-screen');
+                    }
+                    if (data.type === 'start_timer') {
+                        startGameScreen();
+                    }
+                });
+
+                hostConnection.on('error', (err) => { alert("Host bulunamadı!"); location.reload(); });
+            });
         }
 
+        // --- ORTAK UI İŞLEMLERİ ---
         function updateLobbyUI() {
             const list = document.getElementById('lobby-players');
             list.innerHTML = '';
-            for(let i=0; i<4; i++) {
-                let p = state.players[i];
-                if(p) {
-                    list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name} ${p.isHost ? '(Kurucu)' : ''}</span> <span class="status-ready">Bağlandı</span></div>`;
-                } else {
-                    list.innerHTML += `<div class="player-slot"><span style="color: #444;">${i+1}. Bekleniyor...</span> <span class="status-waiting">...</span></div>`;
-                }
-            }
+            state.players.forEach((p, i) => {
+                const isMe = p.name === state.name ? " (Sen)" : "";
+                const isHostStr = i === 0 ? " [Kurucu]" : "";
+                list.innerHTML += `<div class="player-slot"><span>${i+1}. ${p.name}${isMe}${isHostStr}</span> <span class="status-ready">Bağlandı</span></div>`;
+            });
         }
 
-        function simulatePlayersJoining() {
-            // Sadece host kurduğunda diğerlerinin gelmesini simüle eder
-            const fakes = ["Shadow", "Viper", "Ghost"];
-            let idx = 1;
-            let interval = setInterval(() => {
-                if(idx < 4) {
-                    state.players.push({ name: fakes[idx-1], isHost: false });
-                    updateLobbyUI();
-                    idx++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 1500);
-        }
-
-        function startRoleReveal() {
-            // Rol ve takım atama mantığı
-            const teams = ["ALPHA (A & B)", "BRAVO (C & D)"];
-            const roles = ["SAHA ELEMANI", "KATİP"];
+        function hostStartGame() {
+            if (state.players.length < 2) return alert("En az 2 kişi olmalısınız!");
             
-            // Rastgele atama (Simülasyon)
-            state.team = teams[Math.floor(Math.random() * teams.length)];
-            state.role = roles[Math.floor(Math.random() * roles.length)];
-            state.partner = state.players.find(p => p.name !== state.playerName)?.name || "Bilinmiyor";
+            // Rastgele rol dağıt (Şimdilik ilk 2 kişi için)
+            const roles = ["KATİP", "SAHA ELEMANI"];
+            Math.random() > 0.5 ? roles.reverse() : null;
 
-            document.getElementById('reveal-team').innerText = state.team;
-            document.getElementById('reveal-role').innerText = state.role;
+            const assignedRoles = [
+                { id: state.players[0].id, role: roles[0] },
+                { id: state.players[1].id, role: roles[1] }
+            ];
+
+            state.myRole = roles[0]; // Host'un rolü
             
-            if(state.role === "KATİP") {
-                document.getElementById('reveal-desc').innerText = "Kılavuz sendesin. Partnerinin tarif ettiği deseni bul ve ona hangi tuşlara basması gerektiğini söyle.";
-            }
+            // Clientlara yolla
+            broadcast({ type: 'start_game', roles: assignedRoles });
 
+            // Host'un ekranını güncelle
+            document.getElementById('reveal-role').innerText = state.myRole;
+            document.getElementById('reveal-desc').innerText = state.myRole === "KATİP" ? "Kılavuz sende. Şifreyi çöz." : "Panel sende. Söyleneni yap.";
             showScreen('role-reveal-screen');
         }
 
         function playerReady() {
             document.getElementById('ready-btn').style.display = 'none';
             document.getElementById('ready-status').style.display = 'block';
-            
-            // Gerçekte burada Firebase'e "ready: true" yazılır. Biz 2 sn sonra başlatıyoruz.
-            setTimeout(initGame, 2000);
+
+            if (state.isHost) {
+                state.players[0].ready = true;
+                checkAllReady();
+            } else {
+                hostConnection.send({ type: 'ready' });
+            }
         }
 
-        function initGame() {
-            // UI Güncelleme
-            document.getElementById('game-team-display').innerText = state.team;
-            document.getElementById('game-role-display').innerText = state.role;
-            document.getElementById('game-partner-display').innerText = state.partner;
-
-            if(state.role === "SAHA ELEMANI") {
-                generateKeypad();
-                document.getElementById('keypad').style.display = 'grid';
-                document.getElementById('scribe-view').style.display = 'none';
-            } else {
-                // Katip Görünümü
-                document.getElementById('left-panel-title').innerText = "KILAVUZ KİTABI";
-                document.getElementById('left-panel-desc').innerText = "Partnerinin tarif ettiği deseni bul.";
-                document.getElementById('right-panel-title').innerText = "ÇÖZÜM";
-                
-                document.getElementById('keypad').style.display = 'none';
-                document.getElementById('scribe-view').style.display = 'block';
+        function checkAllReady() {
+            if (!state.isHost) return;
+            const allReady = state.players.every(p => p.ready === true);
+            if (allReady) {
+                broadcast({ type: 'start_timer' });
+                startGameScreen();
             }
+        }
 
+        function startGameScreen() {
+            document.getElementById('game-role-display').innerText = state.myRole;
+            
+            if (state.myRole === "SAHA ELEMANI") {
+                document.getElementById('panel-saha').style.display = 'flex';
+                generateKeypad();
+            } else {
+                document.getElementById('panel-katip').style.display = 'flex';
+            }
+            
             showScreen('game-screen');
             startTimer();
         }
@@ -464,27 +328,14 @@
         }
 
         let timeLeft = 90;
-        let gameTimer;
         function startTimer() {
-            gameTimer = setInterval(() => {
+            setInterval(() => {
                 timeLeft--;
                 let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
                 let s = (timeLeft % 60).toString().padStart(2, '0');
-                
-                const tEl = document.getElementById('timer');
-                tEl.innerText = `${m}:${s}`;
-                
-                if(timeLeft <= 30) tEl.style.color = '#ff3366'; // Son 30sn kızarır
-                
-                if (timeLeft <= 0) {
-                    clearInterval(gameTimer);
-                    alert("SÜRE BİTTİ! BOMBA PATLADI!");
-                }
+                document.getElementById('timer').innerText = `${m}:${s}`;
+                if(timeLeft <= 0) { document.getElementById('timer').innerText = "PATLADI!"; }
             }, 1000);
-        }
-
-        function triggerEmergency() {
-            alert("GERÇEK OYUNDA BURASI TARTIŞMA EKRANINA ATAR. (Şu an UI prototipi)");
         }
     </script>
 </body>
